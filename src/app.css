@@ -1,0 +1,69 @@
+@import url(https://fonts.bunny.net/css?family=changa:200,300,400,500,600,700,800);
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+html,
+body {
+    background: transparent !important;
+}
+
+@theme {
+    --color-*: initial;
+    /* Primary - Purple */
+    --color-primary-50: #f3eeff;
+    --color-primary-100: #e9deff;
+    --color-primary-200: #d4bcff;
+    --color-primary-300: #b78fff;
+    --color-primary-400: #9b62f7;
+    --color-primary-500: #7c3aed;
+    --color-primary-600: #6825d4;
+    --color-primary-700: #571baf;
+    --color-primary-800: #47178e;
+    --color-primary-900: #3a1570;
+    --color-primary-950: #220a4a;
+
+    /* Secondary - Orange */
+    --color-secondary-50: #fff5ed;
+    --color-secondary-100: #ffe9d5;
+    --color-secondary-200: #ffd0a8;
+    --color-secondary-300: #ffaf71;
+    --color-secondary-400: #f97d38;
+    --color-secondary-500: #f75d12;
+    --color-secondary-600: #e84308;
+    --color-secondary-700: #c13009;
+    --color-secondary-800: #99280f;
+    --color-secondary-900: #7b2410;
+    --color-secondary-950: #430f05;
+
+    /* Gray - Purple-tinted */
+    --color-gray-50:  #f6f5f9;
+    --color-gray-100: #edecf3;
+    --color-gray-200: #d8d6e7;
+    --color-gray-300: #b9b6d0;
+    --color-gray-400: #9490b4;
+    --color-gray-500: #756f97;
+    --color-gray-600: #5e587c;
+    --color-gray-700: #4d4866;
+    --color-gray-800: #333047;  /* great for cards/surfaces */
+    --color-gray-900: #1e1c2e;  /* great for dark backgrounds */
+    --color-gray-950: #110f1c;  /* closest to the logo background */
+
+    --color-white: #ffffff;
+    --color-black: #000000;
+
+    --font-heading: 'Changa', sans-serif;
+
+    /* Gradient shorthand */
+    --gradient-lumio: linear-gradient(
+        135deg,
+        var(--color-primary-500),
+        var(--color-secondary-400)
+    );
+}
+
+@layer utilities {
+    span {
+        text-box: trim-both cap alphabetic;
+    }
+}
