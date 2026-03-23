@@ -62,7 +62,9 @@ app.on("ready", () => {
                     delete responseHeaders[key];
                 }
             }
-            responseHeaders["access-control-allow-origin"] = ["https://www.youtube-nocookie.com"];
+            responseHeaders["access-control-allow-origin"] = [
+                "https://www.youtube-nocookie.com",
+            ];
             responseHeaders["access-control-allow-credentials"] = ["true"];
             callback({ responseHeaders });
         },
