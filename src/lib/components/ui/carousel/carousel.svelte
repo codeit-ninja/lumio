@@ -1,10 +1,8 @@
 <script lang="ts">
     import type { EmblaOptionsType, EmblaCarouselType } from 'embla-carousel';
     import type { HTMLAttributes } from 'svelte/elements';
-
     import EmblaCarousel  from 'embla-carousel'
     import { onMount } from 'svelte';
-
     import { cn } from '$lib/utils';
 
     type Props = {

@@ -1,6 +1,5 @@
 import path from "node:path";
-
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, session } from "electron";
 import started from "electron-squirrel-startup";
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string | undefined;
@@ -18,10 +17,11 @@ const createWindow = () => {
         height: 1200,
         webPreferences: {
             preload: path.join(import.meta.dirname, "preload.js"),
+            webSecurity: false,
         },
         x: 50,
         y: 50,
-        backgroundMaterial: 'acrylic'
+        backgroundMaterial: "acrylic",
     });
 
     // and load the index.html of the app.
@@ -43,7 +43,33 @@ const createWindow = () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on("ready", createWindow);
+app.on("ready", () => {
+    session.defaultSession.webRequest.onBeforeSendHeaders(
+        { urls: ["*://*.youtube.com/*", "*://*.googlevideo.com/*"] },
+        (details, callback) => {
+            details.requestHeaders["Origin"] = "https://www.youtube.com";
+            details.requestHeaders["Referer"] = "https://www.youtube.com/";
+            callback({ requestHeaders: details.requestHeaders });
+        },
+    );
+
+    session.defaultSession.webRequest.onHeadersReceived(
+        { urls: ["*://*.googlevideo.com/*"] },
+        (details, callback) => {
+            const responseHeaders = { ...details.responseHeaders };
+            for (const key of Object.keys(responseHeaders)) {
+                if (key.toLowerCase() === "access-control-allow-origin") {
+                    delete responseHeaders[key];
+                }
+            }
+            responseHeaders["access-control-allow-origin"] = ["https://www.youtube-nocookie.com"];
+            responseHeaders["access-control-allow-credentials"] = ["true"];
+            callback({ responseHeaders });
+        },
+    );
+
+    createWindow();
+});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits

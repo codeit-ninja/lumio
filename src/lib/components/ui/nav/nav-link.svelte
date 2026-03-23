@@ -1,7 +1,6 @@
 <script lang="ts">
     import type { Component } from "svelte";
     import type { HTMLAnchorAttributes } from "svelte/elements";
-
     import { resolve } from "$app/paths";
     import { page } from "$app/state";
     import { cn } from "$lib/utils";

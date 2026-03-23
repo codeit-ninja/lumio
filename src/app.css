@@ -1,7 +1,9 @@
 @import url(https://fonts.bunny.net/css?family=changa:200,300,400,500,600,700,800);
-@import 'tailwindcss';
+@import "tailwindcss";
+@import "tailwind-animations";
+
 @plugin '@tailwindcss/forms';
-@plugin '@tailwindcss/typography';
+@plugin 'vidstack/tailwind.cjs';
 
 html,
 body {
@@ -37,7 +39,7 @@ body {
     --color-secondary-950: #430f05;
 
     /* Gray - Purple-tinted */
-    --color-gray-50:  #f6f5f9;
+    --color-gray-50: #f6f5f9;
     --color-gray-100: #edecf3;
     --color-gray-200: #d8d6e7;
     --color-gray-300: #b9b6d0;
@@ -45,14 +47,16 @@ body {
     --color-gray-500: #756f97;
     --color-gray-600: #5e587c;
     --color-gray-700: #4d4866;
-    --color-gray-800: #333047;  /* great for cards/surfaces */
-    --color-gray-900: #1e1c2e;  /* great for dark backgrounds */
-    --color-gray-950: #110f1c;  /* closest to the logo background */
+    --color-gray-800: #333047; /* great for cards/surfaces */
+    --color-gray-900: #1e1c2e; /* great for dark backgrounds */
+    --color-gray-950: #110f1c; /* closest to the logo background */
 
     --color-white: #ffffff;
     --color-black: #000000;
 
-    --font-heading: 'Changa', sans-serif;
+    --color-rating: #fbbf24; /* Amber-400 */
+
+    --font-heading: "Changa", sans-serif;
 
     /* Gradient shorthand */
     --gradient-lumio: linear-gradient(
@@ -63,7 +67,7 @@ body {
 }
 
 @layer utilities {
-    span {
+    * {
         text-box: trim-both cap alphabetic;
     }
 }

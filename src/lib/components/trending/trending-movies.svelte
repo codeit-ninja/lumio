@@ -1,12 +1,10 @@
 <script lang="ts">
     import CarouselMovies from "../carousels/carousel-movies.svelte";
-    
-    import { getTrending } from "$lib/resources/movies.svelte";
+    import { useMovies } from "$lib/resources";
 
-
-    let movies = $derived(await getTrending());
+    const { trending } = useMovies();
 </script>
 
-{#if movies.current}
-    <CarouselMovies movies={movies.current} />
+{#if trending.current}
+    <CarouselMovies movies={trending.current} />
 {/if}

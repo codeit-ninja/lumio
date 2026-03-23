@@ -1,6 +1,5 @@
 <script lang="ts">
     import HomeIcon from 'phosphor-svelte/lib/TelevisionIcon'
-
     import { resolve } from '$app/paths';
     import * as Nav from '$lib/components/ui/nav';
 </script>

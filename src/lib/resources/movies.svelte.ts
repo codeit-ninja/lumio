@@ -1,12 +1,23 @@
-import type { Movie } from "tmdb-ts/dist/types"
+import type { Genre, Movie } from "tmdb-ts/dist/types";
+import { resource } from "runed";
+import { createContext } from "svelte";
+import { TMDb } from "$lib/tmdb";
 
-import { resource } from "runed"
-
-import { tmdb } from "$lib/tmdb"
-
-export const getTrending = async () => {
-    return resource<Movie[] | null>(
+export class Movies {
+    trending = resource(
         () => null,
-        () => tmdb.discover.movie({ sort_by: 'popularity.desc' }).then(res => res.results)
-    )
+        () =>
+            TMDb.discover
+                .movie({ sort_by: "popularity.desc" })
+                .then<Movie[]>((res) => res.results),
+    );
+
+    genres = resource(
+        () => null,
+        () => TMDb.genres.movies().then<Genre[]>((response) => response.genres),
+    );
 }
+
+const [get, set] = createContext<Movies>();
+export const createMovies = () => set(new Movies());
+export const useMovies = get;

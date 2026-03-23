@@ -1,6 +1,1 @@
-import { getGenres, genre } from './genres.svelte.js';
-
-export {
-    getGenres,
-    genre
-}
+export { Movies, createMovies, useMovies } from "./movies.svelte.js";

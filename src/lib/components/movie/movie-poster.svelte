@@ -1,8 +1,6 @@
 <script lang="ts">
     import type { HTMLImgAttributes } from "svelte/elements";
-
     import { useMovie } from "./context.svelte";
-
     import { getTMDBImageURL } from "$lib/utils";
 
     type Props = {
@@ -13,4 +11,9 @@
     const movie = useMovie();
 </script>
 
-<img {...restProps} src={getTMDBImageURL(movie.poster_path, size)} alt={movie.title} class="w-full h-auto rounded-lg" />
+<img
+    {...restProps}
+    src={getTMDBImageURL(movie.poster_path, size)}
+    alt={movie.title}
+    class="w-full h-auto rounded-lg"
+/>
