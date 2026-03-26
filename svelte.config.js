@@ -7,13 +7,13 @@ const config = {
     kit: {
         adapter: adapter({
             pages: ".vite/renderer/main_window",
-        })
+        }),
     },
     compilerOptions: {
         experimental: {
-            async: true
-        }
-    }
+            async: true,
+        },
+    },
 };
 
 export default config;

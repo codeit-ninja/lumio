@@ -1,3 +1,3 @@
-import { createDialog, useDialog, Dialog } from "./dialog";
+import { createDialog, Dialog, useDialog } from "./dialog";
 
-export { createDialog, useDialog, Dialog };
+export { createDialog, Dialog, useDialog };

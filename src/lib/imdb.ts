@@ -846,15 +846,12 @@ export interface ApiConfig<SecurityDataType = unknown> {
     customFetch?: typeof fetch;
 }
 
-export interface HttpResponse<
-    D extends unknown,
-    E extends unknown = unknown,
-> extends Response {
+export interface HttpResponse<D, E = unknown> extends Response {
     data: D;
     error: E;
 }
 
-type CancelToken = Symbol | string | number;
+type CancelToken = symbol | string | number;
 
 export enum ContentType {
     Json = "application/json",
@@ -1084,9 +1081,7 @@ export class HttpClient<SecurityDataType = unknown> {
  *
  * IMDb API for accessing movie and TV show data
  */
-export class Api<
-    SecurityDataType extends unknown,
-> extends HttpClient<SecurityDataType> {
+export class Api<SecurityDataType> extends HttpClient<SecurityDataType> {
     titles = {
         /**
          * @description Retrieve a list of titles with optional filters.

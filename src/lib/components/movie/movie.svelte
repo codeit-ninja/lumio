@@ -6,7 +6,7 @@
     type Props = {
         movie: Movie;
         children: Snippet;
-    }
+    };
 
     let { movie, children }: Props = $props();
     createMovie(() => movie);

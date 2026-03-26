@@ -1,6 +1,6 @@
 <script lang="ts">
-    import CarouselMovies from "../carousels/carousel-movies.svelte";
     import { useMovies } from "$lib/resources";
+    import CarouselMovies from "../carousels/carousel-movies.svelte";
 
     const { trending } = useMovies();
 </script>

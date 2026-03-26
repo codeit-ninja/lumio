@@ -1,6 +1,6 @@
-import type { Genre, Movie } from "tmdb-ts/dist/types";
 import { resource } from "runed";
 import { createContext } from "svelte";
+import type { Genre, Movie } from "tmdb-ts/dist/types";
 import { TMDb } from "$lib/tmdb";
 
 export class Movies {
@@ -8,7 +8,9 @@ export class Movies {
         () => null,
         () =>
             TMDb.discover
-                .movie({ sort_by: "popularity.desc" })
+                .movie({
+                    "vote_count.gte": 500,
+                })
                 .then<Movie[]>((res) => res.results),
     );
 

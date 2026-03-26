@@ -1,1 +1,1 @@
-export { Movies, createMovies, useMovies } from "./movies.svelte.js";
+export { createMovies, Movies, useMovies } from "./movies.svelte.js";

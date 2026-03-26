@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { HTMLImgAttributes } from "svelte/elements";
-    import { useMovie } from "./context.svelte";
     import { getTMDBImageURL } from "$lib/utils";
+    import { useMovie } from "./context.svelte";
 
     type Props = {
         size?: "w200" | "w500" | "original";

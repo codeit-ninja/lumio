@@ -1,8 +1,8 @@
 <script lang="ts">
     import type { Movie as TMDBMovie } from "tmdb-ts";
+    import { cn } from "$lib/utils";
     import * as Movie from "../movie";
     import * as Carousel from "../ui/carousel";
-    import { cn } from "$lib/utils";
 
     type Props = {
         movies: TMDBMovie[];
@@ -11,7 +11,13 @@
     let { movies }: Props = $props();
 </script>
 
-<Carousel.Root options={{ slidesToScroll: "auto", containScroll: "trimSnaps", align: "start" }}>
+<Carousel.Root
+    options={{
+        slidesToScroll: "auto",
+        containScroll: "trimSnaps",
+        align: "start",
+    }}
+>
     <Carousel.Container class="flex gap-4 touch-pinch-zoom select-none">
         {#each movies as movie (movie.id)}
             <Movie.Root {movie}>

@@ -1,8 +1,8 @@
 <script lang="ts">
     import type { HTMLAttributes } from "svelte/elements";
-    import { useMovie } from "./context.svelte";
     import { useMovies } from "$lib/resources";
     import { cn } from "$lib/utils";
+    import { useMovie } from "./context.svelte";
 
     type Props = {} & HTMLAttributes<HTMLUListElement>;
 

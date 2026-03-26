@@ -14,19 +14,19 @@ import MovieDetailsWriters from "./movie-details-writers.svelte";
 import MovieDetails from "./movie-details.svelte";
 
 export {
-    type MovieContext,
     createMovie,
-    useMovie,
-    MovieDetailsTitle as Title,
+    type MovieContext,
     MovieDetails as Root,
     MovieDetailsBackdrop as Backdrop,
-    MovieDetailsPoster as Poster,
-    MovieDetailsGenres as Genres,
-    MovieDetailsPlot as Plot,
-    MovieDetailsRating as Rating,
     MovieDetailsCountries as Countries,
-    MovieDetailsLanguages as Languages,
     MovieDetailsDirectors as Directors,
-    MovieDetailsWriters as Writers,
+    MovieDetailsGenres as Genres,
+    MovieDetailsLanguages as Languages,
+    MovieDetailsPlot as Plot,
+    MovieDetailsPoster as Poster,
+    MovieDetailsRating as Rating,
+    MovieDetailsTitle as Title,
     MovieDetailsTrailer as Trailer,
+    MovieDetailsWriters as Writers,
+    useMovie,
 };

@@ -1,8 +1,9 @@
 import { sveltekit } from "@sveltejs/kit/vite";
 import tailwindcss from "@tailwindcss/vite";
-import { vite as vidstack } from "vidstack/plugins";
 import { readFileSync } from "fs";
-import { defineConfig, type Plugin } from "vite";
+import { vite as vidstack } from "vidstack/plugins";
+import type { Plugin } from "vite";
+import { defineConfig } from "vite";
 
 // bits-ui ships pre-compiled .svelte files. When vite-plugin-svelte fails to
 // provide the virtual CSS module (meta.svelte.css not yet in module graph),

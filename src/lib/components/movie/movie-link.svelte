@@ -1,8 +1,8 @@
 <script lang="ts">
     import type { HTMLAnchorAttributes } from "svelte/elements";
-    import { useMovie } from "./context.svelte";
     import { resolve } from "$app/paths";
     import { cn } from "$lib/utils";
+    import { useMovie } from "./context.svelte";
 
     type Props = Omit<HTMLAnchorAttributes, "href">;
 

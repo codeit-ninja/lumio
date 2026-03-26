@@ -1,35 +1,38 @@
 import type { Component } from "svelte";
 import { createContext } from "svelte";
 
-export type DialogOptions<Props extends Record<string, unknown>> = {
-    title: string;
+// Infer Props from a Component type
+type InferProps<C> = C extends Component<infer P, any, any> ? P : never;
+
+export type DialogOptions<
+    C extends Component<any, any, any> = Component<any, any, any>,
+> = {
+    title?: string;
     description?: string;
-    component: Component<Props>;
-    size?: "sm" | "md" | "lg";
-    props?: Props;
+    component: C;
+    size?: "sm" | "md" | "lg" | "full";
+    props?: InferProps<C>;
 };
 
 class Dialog {
     open: boolean = $state(false);
 
-    title: string = $state("");
+    title: string | undefined = $state();
 
-    description: string = $state("");
+    description: string | undefined = $state();
 
-    component: Component<any> | null = $state.raw(null);
+    component: Component<any, any, any> | null = $state.raw(null);
 
-    props: Record<string, unknown> | null = $state(null);
+    props: Record<string, any> | null = $state(null);
 
-    size = $state<"sm" | "md" | "lg">("md");
+    size = $state<"sm" | "md" | "lg" | "full">("md");
 
-    create<Props extends Record<string, unknown>>(
-        options: DialogOptions<Props>,
-    ) {
+    create<C extends Component<any, any, any>>(options: DialogOptions<C>) {
         this.title = options.title;
-        this.description = options.description || "";
+        this.description = options.description;
         this.component = options.component;
-        this.props = options.props || null;
-        this.size = options.size || "md";
+        this.props = (options.props ?? null) as Record<string, any> | null;
+        this.size = options.size ?? "md";
     }
 
     openDialog() {

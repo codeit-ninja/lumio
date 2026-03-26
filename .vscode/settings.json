@@ -1,6 +1,12 @@
 {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
     "[svelte]": {
         "editor.defaultFormatter": "svelte.svelte-vscode"
     },
@@ -11,5 +17,8 @@
         "javascript",
         "typescript",
         "svelte"
+    ],
+    "html.customData": [
+        "./node_modules/vidstack/vscode.html-data.json"
     ]
 }

@@ -1,6 +1,8 @@
 import path from "node:path";
 import { app, BrowserWindow, session } from "electron";
+import contextMenu from "electron-context-menu";
 import started from "electron-squirrel-startup";
+import { destroyWebtorrent, initWebtorrent } from "./webtorrent";
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string | undefined;
 declare const MAIN_WINDOW_VITE_NAME: string;
@@ -9,6 +11,10 @@ declare const MAIN_WINDOW_VITE_NAME: string;
 if (started) {
     app.quit();
 }
+
+contextMenu({
+    showSaveImageAs: true,
+});
 
 const createWindow = () => {
     // Create the browser window.
@@ -58,18 +64,36 @@ app.on("ready", () => {
         (details, callback) => {
             const responseHeaders = { ...details.responseHeaders };
             for (const key of Object.keys(responseHeaders)) {
-                if (key.toLowerCase() === "access-control-allow-origin") {
+                const lower = key.toLowerCase();
+                if (
+                    lower === "access-control-allow-origin" ||
+                    lower === "access-control-allow-credentials"
+                ) {
                     delete responseHeaders[key];
                 }
             }
-            responseHeaders["access-control-allow-origin"] = ["https://www.youtube-nocookie.com"];
+            responseHeaders["access-control-allow-origin"] = [
+                "https://www.youtube-nocookie.com",
+            ];
             responseHeaders["access-control-allow-credentials"] = ["true"];
             callback({ responseHeaders });
         },
     );
 
+    initWebtorrent();
     createWindow();
 });
+
+app.on("before-quit", destroyWebtorrent);
+
+// During development, Vite reloads the main process on file changes.
+// Tear everything down before the old module is discarded so ffmpeg
+// processes and temp files don't leak between reloads.
+if (import.meta.hot) {
+    import.meta.hot.dispose(() => {
+        destroyWebtorrent();
+    });
+}
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
