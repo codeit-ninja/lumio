@@ -1,6 +1,9 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import { scale } from "svelte/transition";
+    import { dev } from "$app/environment";
     import { createApp } from "$lib/app";
+    import { createStreamFromFile } from "$lib/app/stream.svelte";
     import { createDialog, Dialog } from "$lib/components/app";
     import NavbarGenres from "$lib/components/app/navbar/navbar-genres.svelte";
     import NavbarMain from "$lib/components/app/navbar/navbar-main.svelte";
@@ -15,6 +18,14 @@
 
     createMovies();
     createDialog();
+
+    onMount(async () => {
+        if (dev) {
+            app.stream = await createStreamFromFile(
+                "C:\\Users\\Richa\\projects\\lumio\\static\\Peaky.Blinders.The.Immortal.Man.2026.1080p.NF.WEBRip.AAC5.1.10bits.x265-Rapta.mkv",
+            );
+        }
+    });
 </script>
 
 <div
@@ -56,7 +67,8 @@
             bind:this={player.current}
             src={app.stream.streamUrl}
             duration={app.stream.metadata?.duration}
-            onseek={(time) => app.stream!.seek(player.current, time)}
+            tracks={app.stream.tracks}
+            onseek={(time: number) => app.stream!.seek(player.current, time)}
         />
     </div>
 {/if}

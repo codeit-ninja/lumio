@@ -47,6 +47,11 @@ interface SubtitleSession {
 
 // keyed by `${streamUrl}::${trackIndex}`
 const subtitleSessions = new Map<string, SubtitleSession>();
+// keyed by source URL; caches full per-source results so repeat calls are instant
+const subtitleTrackCache = new Map<
+    string,
+    Array<SubtitleTrack & { id: string }>
+>();
 
 function cleanupSession(session: TranscodeSession) {
     session.process.kill("SIGKILL");
@@ -185,7 +190,8 @@ function startTranscode(src: string, seekTime = 0): TranscodeSession {
 }
 
 /**
- * Probes a video URL and returns all embedded subtitle stream metadata.
+ * Fast metadata-only probe: runs `ffmpeg -i url` with no output file so
+ * it exits immediately after reading container headers (typically < 1 s).
  */
 function probeSubtitleStreams(url: string): Promise<SubtitleTrack[]> {
     return new Promise((resolve) => {
@@ -193,36 +199,39 @@ function probeSubtitleStreams(url: string): Promise<SubtitleTrack[]> {
             resolve([]);
             return;
         }
-
-        const ff = spawn(ffmpegPath, ["-i", url]);
+        const ff = spawn(ffmpegPath, [
+            "-probesize",
+            "5000000",
+            "-analyzeduration",
+            "0",
+            "-i",
+            url,
+        ]);
         let stderr = "";
         const timer = setTimeout(() => {
             ff.kill("SIGKILL");
             resolve([]);
         }, 15000);
-
         ff.stderr.on("data", (d: Buffer) => {
             stderr += d.toString();
         });
         ff.on("close", () => {
             clearTimeout(timer);
             const tracks: SubtitleTrack[] = [];
-            // Lines look like: Stream #0:2(eng): Subtitle: subrip (default)
             const re = /Stream #\d+:\d+(?:\((\w+)\))?: Subtitle: (\w+)(.*)/g;
-            let subtitleIndex = 0;
-            let match: RegExpExecArray | null;
-            while ((match = re.exec(stderr)) !== null) {
-                const language = match[1] ?? "";
-                const codec = match[2] ?? "";
-                // Some containers embed a title in the stream metadata line
-                const titleMatch = match[3]?.match(/title\s*:\s*([^,\n]+)/i);
+            let idx = 0;
+            let m: RegExpExecArray | null;
+            while ((m = re.exec(stderr)) !== null) {
+                const language = m[1] ?? "";
+                const codec = m[2] ?? "";
+                const titleMatch = m[3]?.match(/title\s*:\s*([^,\n]+)/i);
                 const title = titleMatch
                     ? titleMatch[1].trim()
-                    : language || `Track ${subtitleIndex + 1}`;
-                tracks.push({ index: subtitleIndex++, language, title, codec });
+                    : language || `Track ${idx + 1}`;
+                tracks.push({ index: idx++, language, title, codec });
             }
             console.log(
-                `[probe-subs] found ${tracks.length} subtitle stream(s) in ${url}`,
+                `[probe-subs] ${tracks.length} subtitle stream(s) in ${url}`,
             );
             resolve(tracks);
         });
@@ -234,30 +243,16 @@ function probeSubtitleStreams(url: string): Promise<SubtitleTrack[]> {
 }
 
 /**
- * Extracts subtitle stream `trackIndex` (0-based among subtitle streams)
- * from `src` to a WebVTT temp file and returns a session object.
- * Re-uses an existing session for the same src + trackIndex.
+ * Starts a background ffmpeg extraction for any uncached tracks.
+ * Returns immediately — sessions are registered synchronously so callers
+ * can read back the session IDs right away.  The HTTP server uses
+ * `await session.ready` to make browsers wait transparently.
  */
-/**
- * Extracts all `tracks` from `src` in a single ffmpeg pass.
- * -vn -an -dn tell ffmpeg to skip video/audio/data decoding so it only
- * demuxes subtitle packets, which is dramatically faster for large files.
- * Already-extracted sessions are returned from the cache; only uncached
- * tracks trigger a new ffmpeg process.
- */
-function extractAllSubtitles(
-    src: string,
-    tracks: SubtitleTrack[],
-): SubtitleSession[] {
-    if (tracks.length === 0) return [];
-
+function scheduleExtractSubtitles(src: string, tracks: SubtitleTrack[]): void {
     const uncached = tracks.filter(
         (t) => !subtitleSessions.has(`${src}::${t.index}`),
     );
-
-    if (uncached.length === 0) {
-        return tracks.map((t) => subtitleSessions.get(`${src}::${t.index}`)!);
-    }
+    if (uncached.length === 0 || !ffmpegPath) return;
 
     const batchDir = path.join(
         os.tmpdir(),
@@ -265,14 +260,22 @@ function extractAllSubtitles(
     );
     fs.mkdirSync(batchDir, { recursive: true });
 
-    // -vn -an -dn: skip video, audio, and data stream processing entirely
+    // -vn -an -dn: skip video/audio/data decoding; only demux subtitle packets
     const args: string[] = ["-i", src, "-vn", "-an", "-dn"];
-
     const pending: Array<{ key: string; session: SubtitleSession }> = [];
+
     for (const track of uncached) {
         const id = Math.random().toString(36).slice(2, 10);
         const tempFile = path.join(batchDir, `${id}.vtt`);
-        args.push("-map", `0:s:${track.index}`, "-f", "webvtt", tempFile);
+        args.push(
+            "-map",
+            `0:s:${track.index}`,
+            "-c:s",
+            "webvtt",
+            "-f",
+            "webvtt",
+            tempFile,
+        );
         pending.push({
             key: `${src}::${track.index}`,
             session: {
@@ -285,12 +288,11 @@ function extractAllSubtitles(
         });
     }
 
-    const ff = spawn(ffmpegPath!, args);
+    const ff = spawn(ffmpegPath, args);
     ff.stderr.on("data", (d: Buffer) =>
         console.log("[ffmpeg-sub]", d.toString().trimEnd()),
     );
 
-    // All sessions in this batch share the same ready promise
     const ready = new Promise<void>((resolve) => {
         ff.on("close", () => resolve());
         ff.on("error", () => resolve());
@@ -304,10 +306,75 @@ function extractAllSubtitles(
         ff.on("error", () => {
             session.done = true;
         });
+        // Register synchronously so callers can read the id immediately
         subtitleSessions.set(key, session);
     }
+}
 
-    return tracks.map((t) => subtitleSessions.get(`${src}::${t.index}`)!);
+/**
+ * Returns track metadata + session URLs immediately (fast probe only).
+ * Extraction runs in the background; the HTTP server waits via session.ready.
+ * Results are cached per source URL so repeat calls are instant.
+ */
+async function probeAndExtractSubtitles(
+    src: string,
+): Promise<Array<SubtitleTrack & { id: string }>> {
+    if (subtitleTrackCache.has(src)) return subtitleTrackCache.get(src)!;
+    if (!ffmpegPath) return [];
+
+    const tracks = await probeSubtitleStreams(src);
+    if (tracks.length === 0) {
+        subtitleTrackCache.set(src, []);
+        return [];
+    }
+
+    // Register sessions synchronously, fire ffmpeg in background
+    scheduleExtractSubtitles(src, tracks);
+
+    const result = tracks.map((track) => ({
+        ...track,
+        id: subtitleSessions.get(`${src}::${track.index}`)!.id,
+    }));
+    console.log(
+        `[sub] ${result.length} subtitle stream(s) scheduled from ${src}`,
+    );
+    subtitleTrackCache.set(src, result);
+    return result;
+}
+
+/**
+ * Streams a growing VTT temp file until ffmpeg finishes writing it.
+ * Called only when the client uses fetch() + TextTrack.addCue() — not
+ * <track src> — so chunked transfer encoding works correctly.
+ */
+async function pipeGrowingSubtitle(
+    res: http.ServerResponse,
+    session: SubtitleSession,
+) {
+    let offset = 0;
+    while (!res.destroyed) {
+        let size = 0;
+        try {
+            size = fs.statSync(session.tempFile).size;
+        } catch {
+            /* not yet */
+        }
+        if (size > offset) {
+            const toRead = size - offset;
+            const buf = Buffer.allocUnsafe(toRead);
+            const fd = fs.openSync(session.tempFile, "r");
+            fs.readSync(fd, buf, 0, toRead, offset);
+            fs.closeSync(fd);
+            offset += toRead;
+            if (!res.write(buf))
+                await new Promise<void>((r) => res.once("drain", r));
+        } else if (session.done) {
+            break;
+        } else {
+            await new Promise<void>((r) => setTimeout(r, 200));
+        }
+    }
+    if (!res.destroyed) res.end();
 }
 
 function startTranscodeServer() {
@@ -334,23 +401,29 @@ function startTranscodeServer() {
                 res.end();
                 return;
             }
-            await session.ready;
-            let content: Buffer;
-            try {
-                content = fs.readFileSync(session.tempFile);
-            } catch {
-                res.writeHead(404);
-                res.end();
-                return;
+            // Wait up to 10 s for ffmpeg to write the WEBVTT header, then stream
+            // the growing file until ffmpeg is done.  The frontend uses fetch()
+            // + TextTrack.addCue() (not <track src>) so chunked streaming works.
+            const deadline = Date.now() + 10_000;
+            while (Date.now() < deadline && !session.done) {
+                try {
+                    if (fs.statSync(session.tempFile).size > 10) break;
+                } catch {
+                    /* not yet */
+                }
+                await new Promise((r) => setTimeout(r, 100));
             }
+            // Omit Content-Length → chunked transfer; client reads cues as they arrive
             res.writeHead(200, {
-                "Content-Type": "text/vtt; charset=utf-8",
-                "Content-Length": String(content.length),
-                "Cache-Control": "no-cache",
+                "Content-Type": "text/plain; charset=utf-8",
+                "Cache-Control": "no-store",
                 "Access-Control-Allow-Origin": "*",
             });
-            if (req.method !== "HEAD") res.write(content);
-            res.end();
+            if (req.method !== "HEAD") {
+                await pipeGrowingSubtitle(res, session);
+            } else {
+                res.end();
+            }
             return;
         }
 
@@ -566,11 +639,10 @@ export function initWebtorrent() {
         ) => {
             await transcodeReady;
             if (!transcodePort) throw new Error("Transcode server not ready");
-            // Kill any running session for this source and start a new one from seekTime
-            const existing = transcodeSessions.get(streamUrl);
-            if (existing) {
-                cleanupSession(existing);
-                transcodeSessions.delete(streamUrl);
+            // Kill all running transcode sessions before starting a new one
+            for (const [key, s] of transcodeSessions.entries()) {
+                cleanupSession(s);
+                transcodeSessions.delete(key);
             }
             const session = startTranscode(streamUrl, seekTime);
             await session.ready;
@@ -583,8 +655,15 @@ export function initWebtorrent() {
         async (_, { streamUrl }: { streamUrl: string }) => {
             await transcodeReady;
             if (!transcodePort) throw new Error("Transcode server not ready");
-            const session =
-                transcodeSessions.get(streamUrl) ?? startTranscode(streamUrl);
+            let session = transcodeSessions.get(streamUrl);
+            if (!session) {
+                // Kill all other running sessions before starting a new one
+                for (const [key, s] of transcodeSessions.entries()) {
+                    cleanupSession(s);
+                    transcodeSessions.delete(key);
+                }
+                session = startTranscode(streamUrl);
+            }
             await session.ready;
             return `http://localhost:${transcodePort}/transcode/${session.id}`;
         },
@@ -595,13 +674,10 @@ export function initWebtorrent() {
         async (_, { streamUrl }: { streamUrl: string }) => {
             await Promise.all([serverReady, transcodeReady]);
             if (!transcodePort) throw new Error("Transcode server not ready");
-            const tracks = await probeSubtitleStreams(streamUrl);
-            const sessions = extractAllSubtitles(streamUrl, tracks);
-            // Wait for the single shared ffmpeg pass to finish
-            if (sessions.length > 0) await sessions[0].ready;
-            return tracks.map((track, i) => ({
+            const results = await probeAndExtractSubtitles(streamUrl);
+            return results.map(({ id, ...track }) => ({
                 ...track,
-                url: `http://localhost:${transcodePort}/subtitles/${sessions[i].id}`,
+                url: `http://localhost:${transcodePort}/subtitles/${id}`,
             }));
         },
     );
@@ -644,6 +720,7 @@ export function destroyWebtorrent() {
     for (const session of subtitleSessions.values())
         cleanupSubtitleSession(session);
     subtitleSessions.clear();
+    subtitleTrackCache.clear();
     if (transcodeServer) transcodeServer.close();
     if (server) server.close();
     if (client) client.destroy();

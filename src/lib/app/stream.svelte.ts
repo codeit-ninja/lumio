@@ -51,11 +51,13 @@ export class Stream {
         if (!this.needTranscode) {
             this.canPlay = true;
         } else {
-            webtorrent.transcode(this.video.streamUrl).then((url) => {
+            webtorrent.transcode(this.video!.streamUrl).then((url) => {
                 this.streamUrl = url;
                 this.canPlay = true;
             });
         }
+
+        console.log(this);
 
         $effect.root(() => {
             watch(
@@ -83,7 +85,7 @@ export class Stream {
         this.seeking = true;
 
         try {
-            const newUrl = await webtorrent.seek(this.streamUrl, time);
+            const newUrl = await webtorrent.seek(this.video!.streamUrl, time);
             this.streamUrl = newUrl;
             // Apply imperatively so the <Player> component does not unmount
             player.seek(newUrl, time);
@@ -111,6 +113,31 @@ export async function createStream(torrent: TorrentInfo) {
     return new Stream({
         torrent,
         video,
+        needTranscode: needsTranscode,
+        metadata: { duration },
+        tracks,
+    });
+}
+
+export async function createStreamFromFile(path: string) {
+    const { needsTranscode, duration } = await webtorrent.probe(path);
+    const mockTorrent: TorrentInfo = {
+        infoHash: "",
+        port: 0,
+        files: [
+            {
+                name: path.split("/").pop()!,
+                path,
+                length: 0,
+                streamUrl: path,
+            },
+        ],
+    };
+    const tracks = await webtorrent.subtitles(path);
+
+    return new Stream({
+        torrent: mockTorrent,
+        video: mockTorrent.files[0],
         needTranscode: needsTranscode,
         metadata: { duration },
         tracks,
