@@ -1,4 +1,7 @@
-import type { ChildProcess } from "node:child_process";
+import type {
+    ChildProcess,
+    ChildProcessWithoutNullStreams,
+} from "node:child_process";
 import type { Server } from "node:http";
 import { spawn } from "node:child_process";
 import fs from "node:fs";
@@ -53,8 +56,39 @@ const subtitleTrackCache = new Map<
     Array<SubtitleTrack & { id: string }>
 >();
 
+/** Every ffmpeg child process currently alive. */
+const runningFfmpeg = new Set<ChildProcess>();
+
+/** Kill every running ffmpeg process and clear the tracking set. */
+function killAllFfmpeg() {
+    for (const ff of runningFfmpeg) {
+        try {
+            ff.kill("SIGKILL");
+        } catch {
+            /* already dead */
+        }
+    }
+    runningFfmpeg.clear();
+}
+
+/**
+ * Spawn ffmpeg, register the process in `runningFfmpeg`, and automatically
+ * deregister it when it exits.  All callers must use this instead of `spawn`
+ * directly so that `killAllFfmpeg` can reach every live instance.
+ */
+function spawnFfmpeg(args: string[]): ChildProcessWithoutNullStreams {
+    killAllFfmpeg();
+    const ff = spawn(ffmpegPath!, args, { stdio: "pipe" });
+    runningFfmpeg.add(ff);
+    const deregister = () => runningFfmpeg.delete(ff);
+    ff.on("close", deregister);
+    ff.on("error", deregister);
+    return ff;
+}
+
 function cleanupSession(session: TranscodeSession) {
     session.process.kill("SIGKILL");
+    runningFfmpeg.delete(session.process);
     fs.rm(session.tempDir, { recursive: true, force: true }, () => {});
 }
 
@@ -68,7 +102,8 @@ async function waitForByte(
 ): Promise<boolean> {
     while (true) {
         try {
-            if (fs.statSync(session.tempFile).size > offset) return true;
+            if ((await fs.promises.stat(session.tempFile)).size > offset)
+                return true;
         } catch {
             /* not yet */
         }
@@ -86,16 +121,19 @@ async function pipeGrowingFile(
     while (!res.destroyed) {
         let size = 0;
         try {
-            size = fs.statSync(session.tempFile).size;
+            size = (await fs.promises.stat(session.tempFile)).size;
         } catch {
             /* still initialising */
         }
         if (size > offset) {
             const toRead = size - offset;
             const buf = Buffer.allocUnsafe(toRead);
-            const fd = fs.openSync(session.tempFile, "r");
-            fs.readSync(fd, buf, 0, toRead, offset);
-            fs.closeSync(fd);
+            const fh = await fs.promises.open(session.tempFile, "r");
+            try {
+                await fh.read(buf, 0, toRead, offset);
+            } finally {
+                await fh.close();
+            }
             offset += toRead;
             if (!res.write(buf))
                 await new Promise<void>((r) => res.once("drain", r));
@@ -142,7 +180,7 @@ function startTranscode(src: string, seekTime = 0): TranscodeSession {
         tempFile,
     ];
 
-    const ff = spawn(ffmpegPath!, args);
+    const ff = spawnFfmpeg(args);
 
     ff.stderr.on("data", (d: Buffer) =>
         console.log("[ffmpeg]", d.toString().trimEnd()),
@@ -199,7 +237,7 @@ function probeSubtitleStreams(url: string): Promise<SubtitleTrack[]> {
             resolve([]);
             return;
         }
-        const ff = spawn(ffmpegPath, [
+        const ff = spawnFfmpeg([
             "-probesize",
             "5000000",
             "-analyzeduration",
@@ -210,7 +248,7 @@ function probeSubtitleStreams(url: string): Promise<SubtitleTrack[]> {
         let stderr = "";
         const timer = setTimeout(() => {
             ff.kill("SIGKILL");
-            resolve([]);
+            resolve([]); // subtitle probe timeout → no tracks found
         }, 15000);
         ff.stderr.on("data", (d: Buffer) => {
             stderr += d.toString();
@@ -261,7 +299,18 @@ function scheduleExtractSubtitles(src: string, tracks: SubtitleTrack[]): void {
     fs.mkdirSync(batchDir, { recursive: true });
 
     // -vn -an -dn: skip video/audio/data decoding; only demux subtitle packets
-    const args: string[] = ["-i", src, "-vn", "-an", "-dn"];
+    // Limit probing so ffmpeg doesn't block on a slow/partial torrent stream.
+    const args: string[] = [
+        "-probesize",
+        "5000000",
+        "-analyzeduration",
+        "0",
+        "-i",
+        src,
+        "-vn",
+        "-an",
+        "-dn",
+    ];
     const pending: Array<{ key: string; session: SubtitleSession }> = [];
 
     for (const track of uncached) {
@@ -288,7 +337,7 @@ function scheduleExtractSubtitles(src: string, tracks: SubtitleTrack[]): void {
         });
     }
 
-    const ff = spawn(ffmpegPath, args);
+    const ff = spawnFfmpeg(args);
     ff.stderr.on("data", (d: Buffer) =>
         console.log("[ffmpeg-sub]", d.toString().trimEnd()),
     );
@@ -355,16 +404,19 @@ async function pipeGrowingSubtitle(
     while (!res.destroyed) {
         let size = 0;
         try {
-            size = fs.statSync(session.tempFile).size;
+            size = (await fs.promises.stat(session.tempFile)).size;
         } catch {
             /* not yet */
         }
         if (size > offset) {
             const toRead = size - offset;
             const buf = Buffer.allocUnsafe(toRead);
-            const fd = fs.openSync(session.tempFile, "r");
-            fs.readSync(fd, buf, 0, toRead, offset);
-            fs.closeSync(fd);
+            const fh = await fs.promises.open(session.tempFile, "r");
+            try {
+                await fh.read(buf, 0, toRead, offset);
+            } finally {
+                await fh.close();
+            }
             offset += toRead;
             if (!res.write(buf))
                 await new Promise<void>((r) => res.once("drain", r));
@@ -401,24 +453,15 @@ function startTranscodeServer() {
                 res.end();
                 return;
             }
-            // Wait up to 10 s for ffmpeg to write the WEBVTT header, then stream
-            // the growing file until ffmpeg is done.  The frontend uses fetch()
-            // + TextTrack.addCue() (not <track src>) so chunked streaming works.
-            const deadline = Date.now() + 10_000;
-            while (Date.now() < deadline && !session.done) {
-                try {
-                    if (fs.statSync(session.tempFile).size > 10) break;
-                } catch {
-                    /* not yet */
-                }
-                await new Promise((r) => setTimeout(r, 100));
-            }
-            // Omit Content-Length → chunked transfer; client reads cues as they arrive
+            // Flush headers immediately so the client's fetch() resolves right
+            // away. Data streams via chunked transfer as ffmpeg writes it;
+            // pipeGrowingSubtitle polls until ffmpeg is done.
             res.writeHead(200, {
                 "Content-Type": "text/plain; charset=utf-8",
                 "Cache-Control": "no-store",
                 "Access-Control-Allow-Origin": "*",
             });
+            res.flushHeaders();
             if (req.method !== "HEAD") {
                 await pipeGrowingSubtitle(res, session);
             } else {
@@ -463,7 +506,7 @@ function startTranscodeServer() {
         };
         if (req.headers["range"]) {
             headers["Content-Range"] =
-                `bytes ${startByte}-${fs.statSync(session.tempFile).size - 1}/*`;
+                `bytes ${startByte}-${(await fs.promises.stat(session.tempFile)).size - 1}/*`;
             res.writeHead(206, headers);
         } else {
             res.writeHead(200, headers);
@@ -523,11 +566,19 @@ function probeFile(
             return;
         }
 
-        const ff = spawn(ffmpegPath, ["-i", url]);
+        const ff = spawnFfmpeg([
+            "-probesize",
+            "10000000",
+            "-analyzeduration",
+            "0",
+            "-i",
+            url,
+        ]);
         let stderr = "";
         const timer = setTimeout(() => {
             ff.kill("SIGKILL");
-            resolve({ needsTranscode: false, duration: 0 });
+            // Probe timed out — codec unknown, transcode to be safe
+            resolve({ needsTranscode: true, duration: 0 });
         }, 15000);
 
         ff.stderr.on("data", (d: Buffer) => {
@@ -715,6 +766,7 @@ export function destroyWebtorrent() {
     ipcMain.removeHandler("webtorrent:transcode");
     ipcMain.removeHandler("webtorrent:remove");
     ipcMain.removeHandler("webtorrent:get");
+    killAllFfmpeg();
     for (const session of transcodeSessions.values()) cleanupSession(session);
     transcodeSessions.clear();
     for (const session of subtitleSessions.values())

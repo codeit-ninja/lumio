@@ -12,13 +12,31 @@
 
     const torrents = resource(
         () => movie,
-        () => {
-            return tbp.search({
+        async () => {
+            let results = await tbp.search({
                 q:
                     movie.imdb.id ||
                     movie.omdb.imdbId ||
                     `${movie.tmdb.title} ${movie.omdb.year}`,
             });
+
+            if (
+                results[0].info_hash ===
+                "0000000000000000000000000000000000000000"
+            ) {
+                results = await tbp.search({
+                    q: `${movie.tmdb.title} (${movie.omdb.year})`,
+                });
+
+                if (
+                    results[0].info_hash ===
+                    "0000000000000000000000000000000000000000"
+                ) {
+                    results = [];
+                }
+            }
+
+            return results;
         },
     );
 </script>

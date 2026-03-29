@@ -21,9 +21,9 @@
 
     onMount(async () => {
         if (dev) {
-            app.stream = await createStreamFromFile(
-                "C:\\Users\\Richa\\projects\\lumio\\static\\Peaky.Blinders.The.Immortal.Man.2026.1080p.NF.WEBRip.AAC5.1.10bits.x265-Rapta.mkv",
-            );
+            // app.stream = await createStreamFromFile(
+            //     "C:\\Users\\Richa\\projects\\lumio\\static\\Peaky.Blinders.The.Immortal.Man.2026.1080p.NF.WEBRip.AAC5.1.10bits.x265-Rapta.mkv",
+            // );
         }
     });
 </script>
@@ -59,7 +59,7 @@
         current: undefined as unknown as ReturnType<typeof Player>,
     }}
     <div
-        class="fixed inset-0 bg-black h-screen w-screen z-50"
+        class="fixed inset-0 bg-black h-screen w-screen z-50 grid place-items-center"
         in:scale={{ duration: 75 }}
         out:scale={{ duration: 75 }}
     >
@@ -68,6 +68,7 @@
             src={app.stream.streamUrl}
             duration={app.stream.metadata?.duration}
             tracks={app.stream.tracks}
+            needTranscode={app.stream.needTranscode}
             onseek={(time: number) => app.stream!.seek(player.current, time)}
         />
     </div>
