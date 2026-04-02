@@ -12,6 +12,8 @@
     import { cn } from "$lib/utils";
 
     const ctx = usePlayer();
+
+    $inspect(ctx);
 </script>
 
 <div

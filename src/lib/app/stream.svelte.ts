@@ -46,6 +46,12 @@ export class Stream {
 
     externalTracks: Record<string, WyzieSubtitle[]> = $state.raw({});
 
+    selectedExternalLang = $derived.by(() =>
+        Object.keys(this.externalTracks).length > 0
+            ? Object.keys(this.externalTracks)[0]
+            : "",
+    );
+
     seeking = $state(false);
 
     movie: MovieContext = $state.raw()!;

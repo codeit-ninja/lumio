@@ -12,7 +12,7 @@
 </script>
 
 <div class="relative">
-    <Popover.Root open={true}>
+    <Popover.Root bind:open={ctx.showTrackMenu}>
         <Popover.Trigger
             class={cn(
                 "cursor-pointer rounded-full size-14 backdrop-blur-md grid place-items-center [&_svg]:size-5",
@@ -75,7 +75,10 @@
                         {/if}
                     </Tabs.Content>
                     <Tabs.Content value="external">
-                        <Tabs.Root class="grid grid-cols-[10rem_auto]">
+                        <Tabs.Root
+                            class="grid grid-cols-[10rem_auto]"
+                            bind:value={app.stream!.selectedExternalLang}
+                        >
                             <ScrollArea class="max-h-100">
                                 <Tabs.List
                                     class="flex flex-col items-start gap-2 px-2 py-2 border-r border-gray-700"

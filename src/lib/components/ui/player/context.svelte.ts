@@ -68,16 +68,16 @@ export class PlayerContext {
     }
 
     async setTrack(subtitle: SubtitleTrack | WyzieSubtitle) {
-        const track: Track = {
+        this.track = {
             label: getName(subtitle.language, "en") ?? subtitle.language,
             language: subtitle.language,
             src: subtitle.url,
         };
-        this.track = track;
+
         if (this.videoEl) {
             await attachTrack(
                 this.videoEl,
-                track,
+                this.track,
                 this.needTranscode ? this.seekOffset : undefined,
             );
         }
