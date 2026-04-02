@@ -44,3 +44,19 @@ export function formatTime(s: number): string {
         ? `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`
         : `${m}:${String(sec).padStart(2, "0")}`;
 }
+
+export function srt2vtt(srt: string): string {
+    let vtt = "WEBVTT\n\n" + srt.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+    vtt = vtt.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, "$1.$2");
+
+    return vtt;
+}
+
+export function fetchSRT(url: string): Promise<string> {
+    return fetch(url)
+        .then((res) => res.text())
+        .then(srt2vtt)
+        .catch(() => {
+            throw new Error("Failed to fetch subtitles");
+        });
+}

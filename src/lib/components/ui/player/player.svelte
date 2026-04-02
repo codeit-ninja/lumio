@@ -50,7 +50,7 @@
 <media-player
     {src}
     class="block! relative group/media overflow-clip"
-    use:ctx.action
+    {@attach ctx.action}
 >
     <media-provider>
         {#if ctx.poster}

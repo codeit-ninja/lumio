@@ -87,9 +87,7 @@
         </div>
 
         <div class="flex gap-4 justify-end items-center">
-            {#if ctx.tracks.length > 0}
-                <PlayerSubtitles />
-            {/if}
+            <PlayerSubtitles />
             <media-fullscreen-button
                 class={cn(
                     "group cursor-pointer rounded-full size-14 backdrop-blur-md grid place-items-center [&_svg]:size-5 [&_svg]:transition-transform",

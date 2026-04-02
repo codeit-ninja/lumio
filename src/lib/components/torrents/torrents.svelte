@@ -43,6 +43,6 @@
 
 <div class="grid gap-1">
     {#each torrents.current as torrent (torrent.info_hash)}
-        <TorrentItem {torrent} />
+        <TorrentItem {torrent} {movie} />
     {/each}
 </div>

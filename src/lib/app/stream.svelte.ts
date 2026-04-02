@@ -1,12 +1,17 @@
+import type { MovieContext } from "$lib/components/movie-details";
 import type { Player } from "$lib/components/ui/player";
+import type { WyzieSubtitle } from "$lib/subtitles";
 import type {
     SubtitleTrack,
     TorrentFile,
     TorrentInfo,
     TorrentProgress,
 } from "$lib/webtorrent";
+import { groupBy } from "lodash-es";
 import maxBy from "lodash-es/maxBy";
-import { watch } from "runed";
+import { resource, watch } from "runed";
+import { PUBLIC_WYZIE_API_KEY } from "$env/static/public";
+import { createWyzie } from "$lib/subtitles";
 import { VIDEO_EXTENSIONS } from "$lib/utils";
 import { webtorrent } from "$lib/webtorrent";
 
@@ -39,14 +44,19 @@ export class Stream {
 
     tracks: SubtitleTrack[] = $state.raw([]);
 
+    externalTracks: Record<string, WyzieSubtitle[]> = $state.raw({});
+
     seeking = $state(false);
 
-    constructor(options: StreamOption) {
+    movie: MovieContext = $state.raw()!;
+
+    constructor(movie: MovieContext, options: StreamOption) {
         this.torrent = options.torrent;
         this.video = options.video;
         this.needTranscode = options.needTranscode;
         this.metadata = options.metadata;
         this.tracks = options.tracks;
+        this.movie = movie;
 
         if (!this.needTranscode) {
             this.canPlay = true;
@@ -74,6 +84,25 @@ export class Stream {
                     return unsubscribe;
                 },
             );
+
+            resource(
+                () => $state.snapshot(this.tracks),
+                async () => {
+                    const wyzie = createWyzie(PUBLIC_WYZIE_API_KEY);
+
+                    wyzie
+                        .search({
+                            id:
+                                this.movie.imdb.id ||
+                                this.movie.omdb.imdbId ||
+                                this.movie.tmdb.id,
+                        })
+                        .then((results) => {
+                            console.log(results);
+                            this.externalTracks = groupBy(results, "language");
+                        });
+                },
+            );
         });
     }
 
@@ -95,7 +124,7 @@ export class Stream {
     }
 }
 
-export async function createStream(torrent: TorrentInfo) {
+export async function createStream(torrent: TorrentInfo, movie: MovieContext) {
     const video = maxBy(
         torrent.files.filter((f) => VIDEO_EXTENSIONS.test(f.name)),
         "length",
@@ -110,7 +139,7 @@ export async function createStream(torrent: TorrentInfo) {
     );
     const tracks = await webtorrent.subtitles(video.streamUrl);
 
-    return new Stream({
+    return new Stream(movie, {
         torrent,
         video,
         needTranscode: needsTranscode,
@@ -119,7 +148,7 @@ export async function createStream(torrent: TorrentInfo) {
     });
 }
 
-export async function createStreamFromFile(path: string) {
+export async function createStreamFromFile(path: string, movie: MovieContext) {
     const { needsTranscode, duration } = await webtorrent.probe(path);
     const mockTorrent: TorrentInfo = {
         infoHash: "",
@@ -135,7 +164,7 @@ export async function createStreamFromFile(path: string) {
     };
     const tracks = await webtorrent.subtitles(path);
 
-    return new Stream({
+    return new Stream(movie, {
         torrent: mockTorrent,
         video: mockTorrent.files[0],
         needTranscode: needsTranscode,

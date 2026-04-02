@@ -1,4 +1,5 @@
 <script lang="ts">
+    import type { MovieContext } from "../movie-details";
     import type { Torrent } from "apibay.org";
     import { format } from "@std/fmt/bytes";
     import PlayIcon from "phosphor-svelte/lib/PlayIcon";
@@ -9,9 +10,10 @@
 
     type Props = {
         torrent: Torrent;
+        movie: MovieContext;
     };
 
-    let { torrent }: Props = $props();
+    let { torrent, movie }: Props = $props();
     let processing = $state(false);
     let app = useApp();
 
@@ -22,34 +24,11 @@
         webtorrent
             .add(magnet)
             .then(async (torrent) => {
-                app.stream = await createStream(torrent);
+                app.stream = await createStream(torrent, movie);
             })
             .finally(() => {
                 processing = false;
             });
-        // progress = null;
-        // transcoding = false;
-        // transcodeSrc = null;
-        // videoDuration = 0;
-
-        // const largest = maxBy(
-        //     activeTorrent.files.filter((f) => VIDEO_EXTENSIONS.test(f.name)),
-        //     "length",
-        // );
-        // if (!largest) return;
-
-        // streamSrc = largest.streamUrl;
-
-        // (async () => {
-        //     const { needsTranscode, duration } = await webtorrent.probe(
-        //         largest.streamUrl,
-        //     );
-        //     videoDuration = duration;
-        //     if (needsTranscode) {
-        //         transcodeSrc = await webtorrent.transcode(largest.streamUrl);
-        //         transcoding = true;
-        //     }
-        // })();
     }
 </script>
 
