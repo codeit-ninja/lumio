@@ -6,7 +6,9 @@ const config = {
     preprocess: vitePreprocess(),
     kit: {
         adapter: adapter({
-            pages: ".vite/renderer/main_window",
+            pages: "build",
+            assets: "build",
+            fallback: "index.html",
         }),
     },
     compilerOptions: {

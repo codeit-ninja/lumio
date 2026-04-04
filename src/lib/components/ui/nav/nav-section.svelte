@@ -11,7 +11,7 @@
     <h5 class="mb-2 uppercase text-gray-500 font-semibold px-3 font-heading">
         {title}
     </h5>
-    <div>
+    <div class="grid gap-1">
         {@render children?.()}
     </div>
 </div>

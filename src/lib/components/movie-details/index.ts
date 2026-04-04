@@ -8,6 +8,7 @@ import MovieDetailsLanguages from "./movie-details-languages.svelte";
 import MovieDetailsPlot from "./movie-details-plot.svelte";
 import MovieDetailsPoster from "./movie-details-poster.svelte";
 import MovieDetailsRating from "./movie-details-rating.svelte";
+import MovieDetailsSimilar from "./movie-details-similar.svelte";
 import MovieDetailsTitle from "./movie-details-title.svelte";
 import MovieDetailsTrailer from "./movie-details-trailer.svelte";
 import MovieDetailsWriters from "./movie-details-writers.svelte";
@@ -28,5 +29,6 @@ export {
     MovieDetailsTitle as Title,
     MovieDetailsTrailer as Trailer,
     MovieDetailsWriters as Writers,
+    MovieDetailsSimilar as Similar,
     useMovie,
 };

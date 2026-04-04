@@ -1,0 +1,39 @@
+[package]
+name = "lumio"
+version = "0.1.0"
+description = "Lumio - Stream movies with ease"
+authors = ["you"]
+license = ""
+repository = ""
+edition = "2021"
+rust-version = "1.77.2"
+
+[lib]
+name = "app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.5.6", features = [] }
+
+[dependencies]
+serde_json = "1"
+serde = { version = "1", features = ["derive"] }
+log = "0.4"
+tauri = { version = "2", features = [] }
+tauri-plugin-log = "2"
+tauri-plugin-shell = "2"
+tokio = { version = "1", features = ["full"] }
+axum = "0.8"
+tower-http = { version = "0.6", features = ["cors"] }
+librqbit = "8"
+librqbit-core = "5"
+anyhow = "1"
+rand = "0.8"
+tempfile = "3"
+regex = "1"
+uuid = { version = "1", features = ["v4"] }
+async-stream = "0.3"
+tokio-util = { version = "0.7", features = ["io"] }
+bytes = "1"
+urlencoding = "2"
+tauri-plugin-http = "2"

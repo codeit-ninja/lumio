@@ -12,8 +12,6 @@
     import { cn } from "$lib/utils";
 
     const ctx = usePlayer();
-
-    $inspect(ctx);
 </script>
 
 <div
@@ -25,9 +23,7 @@
         ctx.showTrackMenu && "bottom-0",
     )}
 >
-    {#if ctx.needTranscode}
-        <PlayerSeekBar />
-    {/if}
+    <PlayerSeekBar />
 
     <div class="grid grid-cols-[1fr_1fr_1fr] items-center w-full gap-4">
         <div class="flex justify-start gap-4">
@@ -70,22 +66,40 @@
         </div>
 
         <div class="flex justify-center">
-            <button
-                class={cn(
-                    "cursor-pointer rounded-full size-18 backdrop-blur-md grid place-items-center",
-                    "bg-gray-400/50 text-gray-200",
-                )}
-                onclick={() => {
-                    ctx.togglePlay();
-                }}
-                type="button"
-            >
-                {#if ctx.paused}
-                    <PlayIcon weight="light" />
-                {:else}
-                    <PauseIcon weight="light" />
-                {/if}
-            </button>
+            {#if ctx.needTranscode}
+                <button
+                    class={cn(
+                        "cursor-pointer rounded-full size-18 backdrop-blur-md grid place-items-center",
+                        "bg-gray-400/50 text-gray-200",
+                    )}
+                    onclick={() => {
+                        ctx.togglePlay();
+                    }}
+                    type="button"
+                >
+                    {#if ctx.paused}
+                        <PlayIcon weight="light" />
+                    {:else}
+                        <PauseIcon weight="light" />
+                    {/if}
+                </button>
+            {:else}
+                <media-play-button
+                    class={cn(
+                        "cursor-pointer rounded-full size-18 backdrop-blur-md grid place-items-center",
+                        "bg-gray-400/50 text-gray-200",
+                    )}
+                >
+                    <PlayIcon
+                        weight="light"
+                        class="hidden group-data-paused/media:block"
+                    />
+                    <PauseIcon
+                        weight="light"
+                        class="hidden group-data-playing/media:block"
+                    />
+                </media-play-button>
+            {/if}
         </div>
 
         <div class="flex gap-4 justify-end items-center">

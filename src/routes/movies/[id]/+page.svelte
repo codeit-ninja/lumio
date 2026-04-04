@@ -3,8 +3,7 @@
     import { useDialog } from "$lib/components/app";
     import * as Movie from "$lib/components/movie-details";
     import * as Torrents from "$lib/components/torrents";
-    import { Button } from "$lib/components/ui/button";
-    import { H } from "$lib/components/ui/h/index.js";
+    import { Button, ButtonBack } from "$lib/components/ui/button";
     import { Player } from "$lib/components/ui/player";
 
     const { data: movie } = $props();
@@ -21,25 +20,36 @@
 </script>
 
 <Movie.Root {movie} class="h-full grow relative">
-    <Movie.Backdrop class="fixed w-full h-full object-cover opacity-10" />
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden bg-primary">
+        <Movie.Backdrop
+            class="fixed w-[calc(100%-300px)] h-[calc(100%-78px)] object-cover opacity-20"
+        />
+    </div>
     <div class="p-8 relative z-10">
-        <Movie.Title class="mb-8" />
-        <div class="grid grid-cols-[300px_1fr] gap-8">
+        <div class="mb-8">
+            <ButtonBack />
+        </div>
+        <div class="grid grid-cols-[350px_1fr] gap-8">
             <Movie.Poster class="mt-4" />
             <div class="py-4 flex flex-col gap-6">
-                <div class="flex flex-col border-b-2 border-gray-800">
+                <div class="flex flex-col border-b border-gray-600">
+                    <Movie.Title class="mb-6" />
                     <Movie.Genres class="mb-6" />
                     <Movie.Rating class="mb-6" />
-                    <Movie.Languages class="mb-2" />
-                    <Movie.Countries class="mb-6" />
-                    <Movie.Directors class="mb-6" />
-                    <Movie.Writers class="mb-6" />
+                    <div class="mb-6 flex flex-col gap-1">
+                        <Movie.Languages />
+                        <Movie.Countries />
+                    </div>
                 </div>
                 <Movie.Plot />
-                <div class="pt-6 border-t-2 border-gray-800">
+                <div class="pt-4 flex items-center gap-4">
+                    <Button variant="primary">
+                        <PlayIcon />
+                        Watch movie
+                    </Button>
                     {#if trailer}
                         <Button
-                            variant="primary"
+                            variant="secondary"
                             onclick={() => {
                                 dialog.create({
                                     component: Player,
@@ -56,10 +66,13 @@
                             Watch Trailer
                         </Button>
                     {/if}
-                    <div class="mt-8">
+                    <div class="mt-6">
+                        <Movie.Similar />
+                    </div>
+                    <!-- <div class="mt-8">
                         <H level="5" class="mb-4">Available torrents</H>
                         <Torrents.Root {movie} />
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>

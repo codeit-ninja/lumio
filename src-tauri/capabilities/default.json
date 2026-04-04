@@ -1,0 +1,28 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "enables the default permissions",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    "core:event:default",
+    "shell:allow-execute",
+    "shell:allow-open",
+    "shell:allow-spawn",
+    "shell:allow-kill",
+    {
+      "identifier": "http:default",
+      "allow": [
+        { "url": "http://localhost:*" },
+        { "url": "https://api.imdbapi.dev/*" },
+        { "url": "https://*.omdbapi.com/*" },
+        { "url": "https://api.themoviedb.org/*" },
+        { "url": "https://image.tmdb.org/*" },
+        { "url": "https://sub.wyzie.io/*" },
+        { "url": "https://apibay.org/*" }
+      ]
+    }
+  ]
+}

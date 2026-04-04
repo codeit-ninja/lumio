@@ -9,6 +9,6 @@
     const movie = useMovie();
 </script>
 
-<h1 {...restProps} class={cn("text-4xl font-bold", restProps.class)}>
+<h1 {...restProps} class={cn("text-4xl font-light", restProps.class)}>
     {movie.tmdb.title}
 </h1>

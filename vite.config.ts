@@ -42,5 +42,3 @@ export default defineConfig({
         exclude: ["runed", "phosphor-svelte", "bits-ui"],
     },
 });
-
-// test build
