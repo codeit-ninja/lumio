@@ -1,8 +1,8 @@
 <script lang="ts">
     import type { HTMLAttributes } from "svelte/elements";
+    import { useMovie } from "./context.svelte";
     import { useMovies } from "$lib/resources";
     import { cn } from "$lib/utils";
-    import { useMovie } from "./context.svelte";
 
     type Props = {} & HTMLAttributes<HTMLUListElement>;
 
@@ -17,11 +17,16 @@
     );
 </script>
 
-<ul
-    {...restProps}
-    class={cn("flex gap-1 flex-wrap text-xs shadow", restProps.class)}
->
+<ul {...restProps} class={cn("flex gap-1 flex-wrap text-xs", restProps.class)}>
     {#each genres as genre (genre.id)}
-        <li class="px-2 py-1 bg-gray-800 rounded">{genre.name}</li>
+        <li
+            class={cn("p-px bg-gray-100/20 rounded-full flex backdrop-blur-sm")}
+        >
+            <span
+                class="px-4 pt-1 pb-1.5 bg-linear-to-br from-gray-950/20 to-gray-700/20 rounded-full text-gray-100"
+            >
+                {genre.name}
+            </span>
+        </li>
     {/each}
 </ul>

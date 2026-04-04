@@ -19,14 +19,14 @@
     <ScrollArea.Scrollbar
         orientation="vertical"
         class={cn(
-            !hideScrollbar && "bg-gray-950",
-            "flex w-2 touch-none select-none rounded-full",
+            !hideScrollbar && "bg-gray-900",
+            "flex w-1 touch-none select-none rounded-full",
             "data-[state=visible]:animate-in data-[state=hidden]:animate-out",
             "data-[state=hidden]:fade-out-0 data-[state=visible]:fade-in-0",
         )}
     >
         <ScrollArea.Thumb
-            class={cn(!hideScrollbar && "bg-gray-800", "flex-1 rounded-full")}
+            class={cn(!hideScrollbar && "bg-gray-600", "flex-1 rounded-full")}
         />
     </ScrollArea.Scrollbar>
     <ScrollArea.Scrollbar orientation="horizontal">

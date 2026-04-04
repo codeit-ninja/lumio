@@ -3,8 +3,8 @@
     import { scale } from "svelte/transition";
     import { dev } from "$app/environment";
     import { createApp } from "$lib/app";
-    import { createStreamFromFile } from "$lib/app/stream.svelte";
-    import { createDialog, Dialog } from "$lib/components/app";
+    // import { createStreamFromFile } from "$lib/app/stream.svelte";
+    import { createDialog, Dialog, Search } from "$lib/components/app";
     import NavbarGenres from "$lib/components/app/navbar/navbar-genres.svelte";
     import NavbarMain from "$lib/components/app/navbar/navbar-main.svelte";
     import { Logo } from "$lib/components/logo";
@@ -44,8 +44,10 @@
     </aside>
     <main class="h-dvh w-full flex flex-col overflow-hidden">
         <div
-            class="p-3 min-h-17.25 border-b border-gray-800 flex items-center gap-4"
-        ></div>
+            class="px-3 py-3 min-h-17.25 border-b border-gray-800 flex items-center gap-4"
+        >
+            <Search />
+        </div>
         <div class="relative flex grow dialog-container overflow-auto">
             {@render children?.()}
 

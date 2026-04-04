@@ -1,13 +1,43 @@
 <script lang="ts">
     import type { HTMLAttributes } from "svelte/elements";
+    import { tv } from "tailwind-variants";
     import { cn } from "$lib/utils";
 
     type Props = {
-        variant?: "primary" | "secondary" | "ghost" | "link" | "lumio";
+        variant?: keyof (typeof variants)["variants"]["variant"];
+        size?: keyof (typeof variants)["variants"]["size"];
         type?: "button" | "submit" | "reset";
-        size?: "sm" | "md" | "lg" | "icon";
         loading?: boolean;
     } & HTMLAttributes<HTMLButtonElement>;
+
+    const variants = tv({
+        base: cn(
+            "w-fit rounded-full flex items-center gap-2 justify-center [&_svg]:size-5 hover:cursor-pointer",
+            "transition-colors duration-150 backdrop-blur-sm active:scale-98",
+            "border border-gray-400/10",
+        ),
+        variants: {
+            variant: {
+                primary: cn(
+                    "bg-linear-to-br from-secondary-200/20 to-primary-400/30 text-white active:opacity-95",
+                    "hover:bg-linear-to-br hover:from-secondary-200/20 hover:to-primary-400/40",
+                ),
+                secondary: cn(
+                    "bg-linear-to-br from-gray-400/20 to-gray-700/30 text-gray-100 active:opacity-95",
+                    "hover:bg-linear-to-br hover:from-gray-400/20 hover:to-gray-700/60",
+                ),
+                lumio: "bg-linear-to-tr from-primary-500 to-secondary-500 text-white active:opacity-95",
+                ghost: "bg-transparent text-gray-100 hover:bg-gray-800/50 active:bg-gray-800/50",
+            },
+            size: {
+                sm: "text-sm py-2 px-4",
+                md: "py-3 px-6 text-base",
+                lg: "py-4 px-8 text-lg",
+                icon: "size-8",
+                "icon-lg": "size-12",
+            },
+        },
+    });
 
     const {
         variant = "secondary",
@@ -20,23 +50,7 @@
 </script>
 
 <button
-    class={cn(
-        "w-fit rounded-lg flex items-center gap-2 justify-center",
-        "[&_svg]:size-5 hover:cursor-pointer transition-all duration-75",
-        "active:scale-98",
-        variant === "primary" && "bg-primary-500 text-white active:opacity-95",
-        variant === "secondary" &&
-            "bg-gray-500/60 text-gray-100 hover:bg-gray-500/50 active:opacity-95",
-        variant === "lumio" &&
-            "bg-linear-to-tr from-primary-500 to-secondary-500 text-white active:opacity-95",
-        variant === "ghost" &&
-            "bg-transparent text-gray-100 hover:bg-gray-800/50",
-        size === "sm" && "text-sm py-2 px-4",
-        size === "md" && "py-3 px-6 text-base",
-        size === "lg" && "py-4 px-8 text-lg",
-        size === "icon" && "size-8",
-        restProps.class,
-    )}
+    class={cn(variants({ variant, size }), restProps.class)}
     {...restProps}
     type={type || "button"}
 >

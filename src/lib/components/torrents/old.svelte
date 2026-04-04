@@ -1,12 +1,12 @@
 <script lang="ts">
+    import type { Player } from "$lib/components/ui/player";
+    import type { TorrentInfo, TorrentProgress } from "$lib/webtorrent";
+    import type { MovieContext } from "../movie-details";
     import { maxBy } from "lodash-es";
     import { resource } from "runed";
-    import type { Player } from "$lib/components/ui/player";
     import { tbp } from "$lib/torrents/thepiratebay";
     import { createMagnetURI, VIDEO_EXTENSIONS } from "$lib/utils";
-    import type { TorrentInfo, TorrentProgress } from "$lib/webtorrent";
     import { webtorrent } from "$lib/webtorrent";
-    import type { MovieContext } from "../movie-details";
 
     type Props = {
         movie: MovieContext;

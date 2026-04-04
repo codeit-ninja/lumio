@@ -1,3 +1,6 @@
+import { invoke } from "@tauri-apps/api/core";
+import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+
 export interface TorrentFile {
     name: string;
     path: string;
@@ -27,21 +30,46 @@ export interface TorrentProgress {
     timeRemaining: number;
 }
 
-declare global {
-    interface Window {
-        webtorrent: {
-            add(magnet: string): Promise<TorrentInfo>;
-            remove(infoHash: string): Promise<void>;
-            get(infoHash: string): Promise<TorrentInfo | null>;
-            probe(
-                streamUrl: string,
-            ): Promise<{ needsTranscode: boolean; duration: number }>;
-            seek(streamUrl: string, seekTime: number): Promise<string>;
-            transcode(streamUrl: string): Promise<string>;
-            subtitles(streamUrl: string): Promise<SubtitleTrack[]>;
-            onProgress(callback: (data: TorrentProgress) => void): () => void;
-        };
-    }
-}
+export const webtorrent = {
+    async add(magnet: string): Promise<TorrentInfo> {
+        return invoke("add_torrent", { magnet });
+    },
 
-export const webtorrent = window.webtorrent;
+    async remove(infoHash: string): Promise<void> {
+        return invoke("remove_torrent", { infoHash });
+    },
+
+    async get(infoHash: string): Promise<TorrentInfo | null> {
+        return invoke("get_torrent", { infoHash });
+    },
+
+    async probe(
+        streamUrl: string,
+    ): Promise<{ needsTranscode: boolean; duration: number }> {
+        return invoke("probe", { streamUrl });
+    },
+
+    async seek(streamUrl: string, seekTime: number): Promise<string> {
+        return invoke("seek", { streamUrl, seekTime });
+    },
+
+    async transcode(streamUrl: string): Promise<string> {
+        return invoke("transcode", { streamUrl });
+    },
+
+    async subtitles(streamUrl: string): Promise<SubtitleTrack[]> {
+        return invoke("subtitles", { streamUrl });
+    },
+
+    onProgress(callback: (data: TorrentProgress) => void): () => void {
+        let unlisten: UnlistenFn | null = null;
+        listen<TorrentProgress>("webtorrent:progress", (event) => {
+            callback(event.payload);
+        }).then((fn_) => {
+            unlisten = fn_;
+        });
+        return () => {
+            if (unlisten) unlisten();
+        };
+    },
+};

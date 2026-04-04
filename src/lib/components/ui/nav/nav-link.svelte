@@ -1,7 +1,6 @@
 <script lang="ts">
     import type { Component } from "svelte";
     import type { HTMLAnchorAttributes } from "svelte/elements";
-    import { resolve } from "$app/paths";
     import { page } from "$app/state";
     import { cn } from "$lib/utils";
 
@@ -10,21 +9,30 @@
     } & HTMLAnchorAttributes;
 
     let { icon: Icon, children, ...restProps }: Props = $props();
-    // @ts-expect-error - this is a bit hacky, but it works
-    let route = $derived(resolve(restProps.href));
+    let isActive = $derived(
+        (page.route.id?.startsWith(restProps.href!) &&
+            restProps.href !== "/") ||
+            restProps.href + "/" === page.url.pathname,
+    );
 </script>
 
 <a
     {...restProps}
     class={cn(
-        "flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-gray-900",
-        (route + "/").replace("//", "/") === page.url.pathname
-            ? "bg-gray-900"
-            : "",
+        "p-px bg-linear-to-br gap-2 rounded-full text-sm backdrop-blur-xs",
+        isActive && "from-gray-500/20 to-gray-600/20",
+        restProps.class,
     )}
 >
-    {#if Icon}
-        <Icon class="size-5" weight="bold" />
-    {/if}
-    {@render children?.()}
+    <span
+        class={cn(
+            "flex items-center gap-2 rounded-full px-5 py-2 bg-linear-to-br",
+            isActive && "from-gray-100/10 to-gray-200/10",
+        )}
+    >
+        {#if Icon}
+            <Icon class="size-5" weight="bold" />
+        {/if}
+        {@render children?.()}
+    </span>
 </a>

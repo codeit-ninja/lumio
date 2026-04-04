@@ -1,7 +1,8 @@
 <script lang="ts">
     import type { HTMLImgAttributes } from "svelte/elements";
-    import { getTMDBImageURL } from "$lib/utils";
+    import { AspectRatio } from "bits-ui";
     import { useMovie } from "./context.svelte";
+    import { cn, getTMDBImageURL } from "$lib/utils";
 
     type Props = {
         size?: "w200" | "w500" | "original";
@@ -11,9 +12,11 @@
     const movie = useMovie();
 </script>
 
-<img
-    {...restProps}
-    src={getTMDBImageURL(movie.poster_path, size)}
-    alt={movie.title}
-    class="w-full h-auto rounded-lg"
-/>
+<AspectRatio.Root ratio={2 / 3} class="w-full">
+    <img
+        {...restProps}
+        src={getTMDBImageURL(movie.poster_path, size)}
+        alt={movie.title}
+        class={cn("h-full w-full object-cover", restProps.class)}
+    />
+</AspectRatio.Root>

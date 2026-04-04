@@ -9,14 +9,17 @@
     const movie = useMovie();
 </script>
 
-<div
-    {...restProps}
-    class={cn("flex items-center text-xs flex-wrap gap-2", restProps.class)}
->
-    <span class="text-gray-200 me-2">Countries</span>
-    {#each movie.imdb.originCountries as country (country.code)}
-        <span class="px-3 py-2 bg-gray-900 rounded text-gray-100">
-            {country.name}
-        </span>
-    {/each}
-</div>
+{#if movie.imdb.originCountries?.length}
+    <div
+        {...restProps}
+        class={cn(
+            "flex items-center text-xs flex-wrap gap-2 text-gray-200",
+            restProps.class,
+        )}
+    >
+        <span>Countries:</span>
+        {movie.imdb.originCountries
+            .map((country) => `${country.name}`)
+            .join(", ")}
+    </div>
+{/if}

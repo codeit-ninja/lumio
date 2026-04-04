@@ -7,16 +7,23 @@
 
     const { ...restProps }: Props = $props();
     const movie = useMovie();
+
+    console.log(movie.imdb);
 </script>
 
-<div
-    {...restProps}
-    class={cn("flex items-center text-xs flex-wrap gap-2", restProps.class)}
->
-    <span class="text-gray-200 me-2">Languages</span>
-    {#each movie.imdb.spokenLanguages as language (language.code)}
-        <span class="px-3 py-2 bg-gray-900 rounded text-gray-100">
-            {language.name}
-        </span>
-    {/each}
-</div>
+{#if movie.imdb.spokenLanguages}
+    <div
+        {...restProps}
+        class={cn(
+            "flex gap-2 items-center text-sm text-gray-200",
+            restProps.class,
+        )}
+    >
+        <span>Languages:</span>
+        <span
+            >{movie.imdb.spokenLanguages
+                .map((language) => `${language.name}`)
+                .join(", ")}</span
+        >
+    </div>
+{/if}

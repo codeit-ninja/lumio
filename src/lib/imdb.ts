@@ -10,6 +10,8 @@
  * ---------------------------------------------------------------
  */
 
+import { fetch } from "@tauri-apps/plugin-http";
+
 /**
  * TitleType defines the type of title in the IMDb API.
  *
@@ -1861,4 +1863,4 @@ export class Api<SecurityDataType> extends HttpClient<SecurityDataType> {
     };
 }
 
-export const IMDb = new Api();
+export const IMDb = new Api({ customFetch: fetch });
