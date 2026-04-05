@@ -1,9 +1,8 @@
 <script>
-    import TrendingMovies from "$lib/components/trending/trending-movies.svelte";
-    import { H } from "$lib/components/ui/h";
+    import { TrendingMovie, TrendingMovies } from "$lib/components/app/movies";
 </script>
 
-<div class="p-8">
-    <H level="1" class="mb-4">Trending movies</H>
+<div class="w-full py-6">
+    <TrendingMovie />
     <TrendingMovies />
 </div>

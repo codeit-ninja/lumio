@@ -26,7 +26,7 @@
                     class="rounded-none transition-transform duration-300 ease-in-out group-hover:scale-105"
                 />
                 <div class="flex flex-col absolute inset-0 bg-black/10">
-                    <Movie.Genres class="p-4" />
+                    <Movie.Genres class="p-4" size="sm" />
                     <div
                         class="mt-auto px-4 pb-4 pt-12 bg-linear-to-t from-gray-950 to-transparent"
                     >

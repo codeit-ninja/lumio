@@ -1,5 +1,6 @@
+import type { UnlistenFn } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
-import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import { listen } from "@tauri-apps/api/event";
 
 export interface TorrentFile {
     name: string;
@@ -37,6 +38,10 @@ export const webtorrent = {
 
     async remove(infoHash: string): Promise<void> {
         return invoke("remove_torrent", { infoHash });
+    },
+
+    async stopAndRemove(infoHash: string): Promise<void> {
+        return invoke("stop_and_remove", { infoHash });
     },
 
     async get(infoHash: string): Promise<TorrentInfo | null> {

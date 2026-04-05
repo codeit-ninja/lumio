@@ -46,16 +46,17 @@
 
 <Input
     placeholder="Search..."
-    class="w-sm"
     bind:value={search}
     bind:ref={customAnchor}
+    autocomplete="off"
 />
 <Popover.Root bind:open>
     <Popover.Content
         {customAnchor}
         class={cn(
-            "w-(--bits-popover-anchor-width) outline-none",
-            "bg-gray-900 rounded shadow z-100",
+            "w-(--bits-popover-anchor-width) outline-none backdrop-blur-sm",
+            "border border-white/10 rounded-lg shadow z-50",
+            "bg-linear-to-br from-gray-800/80 to-gray-900/80",
         )}
         sideOffset={4}
         trapFocus={false}
@@ -66,24 +67,31 @@
         <ScrollArea class="max-h-120">
             {#each results.current as movie (movie.id)}
                 {#if movie.media_type === "movie"}
-                    {console.log(movie)}
-                    <a
-                        href={resolve("/movies/[id]", {
-                            id: movie.id.toString(),
-                        })}
-                    >
-                        <Movie.Root
-                            {movie}
-                            class="not-first:border-t-2 border-gray-800 grid grid-cols-[100px_1fr] gap-4 p-4"
+                    <div class="px-2 pt-2 last:pb-2">
+                        <a
+                            href={resolve("/movies/[id]", {
+                                id: movie.id.toString(),
+                            })}
+                            class={cn(
+                                "bg-linear-to-br from-gray-100/10 to-gray-100/5 block rounded-lg border border-white/10",
+                                "hover:bg-gray-300/10 data-[state=open]:bg-gray-300/10 transition-colors shadow-sm",
+                            )}
                         >
-                            <Movie.Poster class="rounded" />
-                            <div class="flex flex-col gap-2">
-                                <Movie.Title class="text-lg font-bold" />
-                                <Movie.Genres />
-                                <Movie.Rating />
-                            </div>
-                        </Movie.Root>
-                    </a>
+                            <Movie.Root
+                                {movie}
+                                class="grid grid-cols-[100px_1fr] gap-4 p-2"
+                            >
+                                <Movie.Poster class="rounded" />
+                                <div class="flex flex-col gap-1 min-w-0">
+                                    <Movie.Title
+                                        class="text-lg font-light truncate mb-0"
+                                    />
+                                    <Movie.Rating size="sm" />
+                                    <Movie.Genres class="mt-2" size="sm" />
+                                </div>
+                            </Movie.Root>
+                        </a>
+                    </div>
                 {/if}
             {/each}
         </ScrollArea>

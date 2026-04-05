@@ -1,5 +1,5 @@
-import type { MovieContext } from "$lib/components/movie-details";
 import type { Player } from "$lib/components/ui/player";
+import type { Movie } from "$lib/resources/movies.svelte";
 import type { WyzieSubtitle } from "$lib/subtitles";
 import type {
     SubtitleTrack,
@@ -54,9 +54,11 @@ export class Stream {
 
     seeking = $state(false);
 
-    movie: MovieContext = $state.raw()!;
+    movie: Movie = $state.raw()!;
 
-    constructor(movie: MovieContext, options: StreamOption) {
+    isLoading = $state(false);
+
+    constructor(movie: Movie, options: StreamOption) {
         this.torrent = options.torrent;
         this.video = options.video;
         this.needTranscode = options.needTranscode;
@@ -72,8 +74,6 @@ export class Stream {
                 this.canPlay = true;
             });
         }
-
-        console.log(this);
 
         $effect.root(() => {
             watch(
@@ -99,9 +99,9 @@ export class Stream {
                     wyzie
                         .search({
                             id:
-                                this.movie.imdb.id ||
-                                this.movie.omdb.imdbId ||
-                                this.movie.tmdb.id,
+                                this.movie.id ||
+                                this.movie.tmdbId.toString() ||
+                                `${this.movie.title} (${this.movie.startYear})`,
                         })
                         .then((results) => {
                             console.log(results);
@@ -128,9 +128,18 @@ export class Stream {
             this.seeking = false;
         }
     }
+
+    stop() {
+        if (!this.torrent) {
+            // TODO: Handle error here, this should never happen but just in case
+            return;
+        }
+
+        webtorrent.stopAndRemove(this.torrent.infoHash);
+    }
 }
 
-export async function createStream(torrent: TorrentInfo, movie: MovieContext) {
+export async function createStream(torrent: TorrentInfo, movie: Movie) {
     const video = maxBy(
         torrent.files.filter((f) => VIDEO_EXTENSIONS.test(f.name)),
         "length",
@@ -148,31 +157,6 @@ export async function createStream(torrent: TorrentInfo, movie: MovieContext) {
     return new Stream(movie, {
         torrent,
         video,
-        needTranscode: needsTranscode,
-        metadata: { duration },
-        tracks,
-    });
-}
-
-export async function createStreamFromFile(path: string, movie: MovieContext) {
-    const { needsTranscode, duration } = await webtorrent.probe(path);
-    const mockTorrent: TorrentInfo = {
-        infoHash: "",
-        port: 0,
-        files: [
-            {
-                name: path.split("/").pop()!,
-                path,
-                length: 0,
-                streamUrl: path,
-            },
-        ],
-    };
-    const tracks = await webtorrent.subtitles(path);
-
-    return new Stream(movie, {
-        torrent: mockTorrent,
-        video: mockTorrent.files[0],
         needTranscode: needsTranscode,
         metadata: { duration },
         tracks,

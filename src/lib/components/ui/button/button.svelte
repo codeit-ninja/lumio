@@ -1,20 +1,21 @@
 <script lang="ts">
-    import type { HTMLAttributes } from "svelte/elements";
-    import { tv } from "tailwind-variants";
-    import { cn } from "$lib/utils";
+    import type { HTMLAnchorAttributes, HTMLAttributes } from "svelte/elements";
+    import { cn, tv } from "tailwind-variants";
+    import { SpinnerIcon } from "$lib/icons";
 
     type Props = {
         variant?: keyof (typeof variants)["variants"]["variant"];
         size?: keyof (typeof variants)["variants"]["size"];
         type?: "button" | "submit" | "reset";
         loading?: boolean;
-    } & HTMLAttributes<HTMLButtonElement>;
+    } & HTMLAttributes<HTMLButtonElement> &
+        HTMLAnchorAttributes;
 
     const variants = tv({
         base: cn(
-            "w-fit rounded-full flex items-center gap-2 justify-center [&_svg]:size-5 hover:cursor-pointer",
-            "transition-colors duration-150 backdrop-blur-sm active:scale-98",
-            "border border-gray-400/10",
+            "w-fit rounded-full flex items-center gap-2 justify-center [&_svg]:size-5 [&_svg]:text-gray-300",
+            "transition-colors duration-150 backdrop-blur-sm active:scale-98 shadow-sm hover:cursor-pointer",
+            "border border-white/10 corner-squircle",
         ),
         variants: {
             variant: {
@@ -49,16 +50,33 @@
     }: Props = $props();
 </script>
 
-<button
-    class={cn(variants({ variant, size }), restProps.class)}
-    {...restProps}
-    type={type || "button"}
->
-    {#if loading}
-        <span
-            class="size-4 border-2 border-primary-300 border-r-primary-500 animate-spin rounded-full"
-        ></span>
-    {:else}
-        {@render children?.()}
-    {/if}
-</button>
+{#if restProps.href}
+    <a {...restProps} class={cn(variants({ variant, size }), restProps.class)}>
+        {#if loading}
+            <span
+                class="size-4 border-2 border-primary-300 border-r-primary-500 animate-spin rounded-full"
+            ></span>
+        {:else}
+            {@render children?.()}
+        {/if}
+    </a>
+{:else}
+    <button
+        {...restProps}
+        class={cn(variants({ variant, size }), restProps.class)}
+        type={type || "button"}
+    >
+        {#if loading}
+            <SpinnerIcon
+                class={cn(
+                    "text-primary-300",
+                    size === "sm" && "size-4",
+                    size === "md" && "size-5",
+                    size === "lg" && "size-6",
+                )}
+            />
+        {:else}
+            {@render children?.()}
+        {/if}
+    </button>
+{/if}

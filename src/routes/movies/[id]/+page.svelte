@@ -1,5 +1,6 @@
 <script lang="ts">
     import PlayIcon from "phosphor-svelte/lib/PlayIcon";
+    import { useApp } from "$lib/app/index.js";
     import { useDialog } from "$lib/components/app";
     import * as Movie from "$lib/components/movie-details";
     import * as Torrents from "$lib/components/torrents";
@@ -8,6 +9,7 @@
 
     const { data: movie } = $props();
     const dialog = useDialog();
+    const app = useApp();
 
     const trailer = $derived(
         movie.tmdb.videos.results.find(
@@ -19,10 +21,10 @@
     );
 </script>
 
-<Movie.Root {movie} class="h-full grow relative">
+<Movie.Root {movie} class="mt-6 h-full grow relative">
     <div class="absolute top-0 left-0 w-full h-full overflow-hidden bg-primary">
         <Movie.Backdrop
-            class="fixed w-[calc(100%-300px)] h-[calc(100%-78px)] object-cover opacity-20"
+            class="rounded-tl-4xl fixed w-[calc(100%-300px)] h-[calc(100%-78px)] object-cover opacity-20"
         />
     </div>
     <div class="p-8 relative z-10">
@@ -43,7 +45,12 @@
                 </div>
                 <Movie.Plot />
                 <div class="pt-4 flex items-center gap-4">
-                    <Button variant="primary">
+                    <Button
+                        variant="primary"
+                        onclick={() => {
+                            app.findBestStream(movie);
+                        }}
+                    >
                         <PlayIcon />
                         Watch movie
                     </Button>

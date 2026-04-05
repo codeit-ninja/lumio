@@ -1,4 +1,4 @@
-import type { Movie } from "tmdb-ts";
+import type { Movie } from "$lib/resources/movies.svelte";
 import { createContext } from "svelte";
 
 const [get, set] = createContext<Movie>();

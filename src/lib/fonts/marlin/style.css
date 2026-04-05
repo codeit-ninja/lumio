@@ -1,0 +1,141 @@
+/* Marlin Sans */
+
+@font-face {
+    font-family: "Marlin Sans";
+    src: url("./fonnts.com-marlin-sans-001-thin.otf") format("opentype");
+    font-weight: 100;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Marlin Sans";
+    src: url("./fonnts.com-marlin-sans-002-extra-light.otf") format("opentype");
+    font-weight: 200;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Marlin Sans";
+    src: url("./fonnts.com-marlin-sans-003-light.otf") format("opentype");
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Marlin Sans";
+    src: url("./fonnts.com-marlin-sans-004-book.otf") format("opentype");
+    font-weight: 350;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Marlin Sans";
+    src: url("./fonnts.com-marlin-sans-005-regular.otf") format("opentype");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Marlin Sans";
+    src: url("./fonnts.com-marlin-sans-006-medium.otf") format("opentype");
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Marlin Sans";
+    src: url("./fonnts.com-marlin-sans-008-extra-bold.otf") format("opentype");
+    font-weight: 800;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Marlin Sans";
+    src: url("./fonnts.com-marlin-sans-009-black.otf") format("opentype");
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Marlin Sans";
+    src: url("./fonnts.com-marlin-sans-010-extra-black.otf") format("opentype");
+    font-weight: 950;
+    font-style: normal;
+}
+
+/* Marlin Sans Italic */
+
+@font-face {
+    font-family: "Marlin Sans";
+    src: url("./fonnts.com-marlin-sans-italic-001-thin.otf") format("opentype");
+    font-weight: 100;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Marlin Sans";
+    src: url("./fonnts.com-marlin-sans-italic-002-extra-light.otf")
+        format("opentype");
+    font-weight: 200;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Marlin Sans";
+    src: url("./fonnts.com-marlin-sans-italic-003-light.otf") format("opentype");
+    font-weight: 300;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Marlin Sans";
+    src: url("./fonnts.com-marlin-sans-italic-004-book.otf") format("opentype");
+    font-weight: 350;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Marlin Sans";
+    src: url("./fonnts.com-marlin-sans-italic-005-regular.otf")
+        format("opentype");
+    font-weight: 400;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Marlin Sans";
+    src: url("./fonnts.com-marlin-sans-italic-006-medium.otf")
+        format("opentype");
+    font-weight: 500;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Marlin Sans";
+    src: url("./fonnts.com-marlin-sans-italic-007-bold.otf") format("opentype");
+    font-weight: 700;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Marlin Sans";
+    src: url("./fonnts.com-marlin-sans-italic-008-extra-bold.otf")
+        format("opentype");
+    font-weight: 800;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Marlin Sans";
+    src: url("./fonnts.com-marlin-sans-italic-009-black.otf") format("opentype");
+    font-weight: 900;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Marlin Sans";
+    src: url("./fonnts.com-marlin-sans-italic-010-extra-black.otf")
+        format("opentype");
+    font-weight: 950;
+    font-style: italic;
+}

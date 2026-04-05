@@ -20,14 +20,19 @@
         "text-white absolute left-0 right-0 -bottom-40 p-6 z-20",
         "transition-[bottom] duration-200",
         "group-data-controls/media:bottom-0 group-data-paused/media:bottom-0",
-        ctx.showTrackMenu && "bottom-0",
+        ctx.showTrackMenu && "bottom-0!",
     )}
 >
     <PlayerSeekBar />
 
     <div class="grid grid-cols-[1fr_1fr_1fr] items-center w-full gap-4">
         <div class="flex justify-start gap-4">
-            <media-mute-button class="group cursor-pointer">
+            <media-mute-button
+                class={cn(
+                    "group cursor-pointer min-w-14 size-14 grid place-items-center rounded-full backdrop-blur-sm",
+                    "bg-linear-(--gradient-liquid-100) text-gray-200 border border-white/10 shadow-sm",
+                )}
+            >
                 <SpeakerHighIcon class="hidden group-data-[state=high]:block" />
                 <SpeakerLowIcon class="hidden group-data-[state=low]:block" />
                 <SpeakerNoneIcon
@@ -70,7 +75,8 @@
                 <button
                     class={cn(
                         "cursor-pointer rounded-full size-18 backdrop-blur-md grid place-items-center",
-                        "bg-gray-400/50 text-gray-200",
+                        "bg-linear-to-br from-gray-100/40 to-gray-100/35 text-gray-200",
+                        "border border-white/10 shadow-sm",
                     )}
                     onclick={() => {
                         ctx.togglePlay();
@@ -87,7 +93,8 @@
                 <media-play-button
                     class={cn(
                         "cursor-pointer rounded-full size-18 backdrop-blur-md grid place-items-center",
-                        "bg-gray-400/50 text-gray-200",
+                        "bg-linear-to-br from-gray-100/40 to-gray-100/35 text-gray-200",
+                        "border border-white/10 shadow-sm",
                     )}
                 >
                     <PlayIcon
@@ -107,7 +114,7 @@
             <media-fullscreen-button
                 class={cn(
                     "group cursor-pointer rounded-full size-14 backdrop-blur-md grid place-items-center [&_svg]:size-5 [&_svg]:transition-transform",
-                    "bg-gray-100/10 text-gray-100 hover:bg-gray-100/20",
+                    "bg-linear-(--gradient-liquid-200) text-gray-200 border border-white/10 shadow-sm",
                     "data-active:bg-gray-100/20",
                     "hover:[&_svg]:scale-115",
                 )}

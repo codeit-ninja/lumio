@@ -1,8 +1,8 @@
 <script lang="ts">
     import type { Movie as TMDBMovie } from "tmdb-ts";
-    import { cn } from "$lib/utils";
     import * as Movie from "../movie";
     import * as Carousel from "../ui/carousel";
+    import { cn } from "$lib/utils";
 
     type Props = {
         movies: TMDBMovie[];
@@ -31,7 +31,7 @@
                             )}
                         >
                             <Movie.Rating />
-                            <Movie.Genres />
+                            <Movie.Genres size="sm" />
                         </div>
                         <Movie.Title
                             level="4"

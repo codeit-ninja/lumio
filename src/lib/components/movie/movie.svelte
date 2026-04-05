@@ -1,7 +1,7 @@
 <script lang="ts">
+    import type { Movie } from "$lib/resources/movies.svelte";
     import type { Snippet } from "svelte";
     import type { HTMLAttributes } from "svelte/elements";
-    import type { Movie } from "tmdb-ts";
     import { createMovie } from "./context.svelte";
 
     type Props = {

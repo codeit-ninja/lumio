@@ -15,14 +15,30 @@
     {
       "identifier": "http:default",
       "allow": [
-        { "url": "http://localhost:*" },
-        { "url": "https://api.imdbapi.dev/*" },
-        { "url": "https://*.omdbapi.com/*" },
-        { "url": "https://api.themoviedb.org/*" },
-        { "url": "https://image.tmdb.org/*" },
-        { "url": "https://sub.wyzie.io/*" },
-        { "url": "https://apibay.org/*" }
+        {
+          "url": "http://localhost:*"
+        },
+        {
+          "url": "https://api.imdbapi.dev/*"
+        },
+        {
+          "url": "https://*.omdbapi.com/*"
+        },
+        {
+          "url": "https://api.themoviedb.org/*"
+        },
+        {
+          "url": "https://image.tmdb.org/*"
+        },
+        {
+          "url": "https://sub.wyzie.io/*"
+        },
+        {
+          "url": "https://apibay.org/*"
+        }
       ]
-    }
+    },
+    "os:default",
+    "device-info:default"
   ]
 }

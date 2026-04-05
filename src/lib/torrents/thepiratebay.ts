@@ -1,3 +1,4 @@
+import type { Movie } from "$lib/resources/movies.svelte";
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 import { createApiBay } from "apibay.org";
 
@@ -17,3 +18,23 @@ globalThis.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
 };
 
 export const tbp = createApiBay({ transform: true });
+
+export const getTorrents = async (movie: Movie) => {
+    let torrents = await tbp.search({
+        q: movie.id || `${movie.title} (${movie.startYear})`,
+    });
+
+    if (torrents[0].info_hash === "0000000000000000000000000000000000000000") {
+        torrents = await tbp.search({
+            q: `${movie.title} (${movie.startYear})`,
+        });
+
+        if (
+            torrents[0].info_hash === "0000000000000000000000000000000000000000"
+        ) {
+            torrents = [];
+        }
+    }
+
+    return torrents;
+};

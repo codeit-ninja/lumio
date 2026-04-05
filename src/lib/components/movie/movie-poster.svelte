@@ -12,7 +12,7 @@
     const movie = useMovie();
 </script>
 
-<AspectRatio.Root ratio={2 / 3} class="w-full">
+<AspectRatio.Root ratio={2 / 3} class="w-full overflow-clip">
     <img
         {...restProps}
         src={getTMDBImageURL(movie.poster_path, size)}

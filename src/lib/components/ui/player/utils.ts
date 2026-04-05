@@ -11,7 +11,6 @@ export const attachTrack = async (
     track: Track,
     offset?: number,
 ) => {
-    console.log(track.src);
     const vtt = await VTT.fromURL(track.src);
     const cues = vtt.getCues();
     const textTrack =
@@ -39,6 +38,4 @@ export const attachTrack = async (
         ),
     );
     textTrack.mode = "showing";
-
-    console.log(textTrack);
 };

@@ -104,9 +104,13 @@ async fn stream_torrent_file(
             let s = s.strip_prefix("bytes=")?;
             let mut parts = s.splitn(2, '-');
             let start = parts.next()?.parse::<u64>().ok()?;
-            let end = parts
-                .next()
-                .and_then(|e| if e.is_empty() { None } else { e.parse::<u64>().ok() });
+            let end = parts.next().and_then(|e| {
+                if e.is_empty() {
+                    None
+                } else {
+                    e.parse::<u64>().ok()
+                }
+            });
             Some((start, end))
         });
 
@@ -153,12 +157,10 @@ async fn stream_torrent_file(
         .header(header::CACHE_CONTROL, "no-store");
 
     if range.is_some() {
-        builder = builder
-            .status(StatusCode::PARTIAL_CONTENT)
-            .header(
-                header::CONTENT_RANGE,
-                format!("bytes {start}-{end}/{total_len}"),
-            );
+        builder = builder.status(StatusCode::PARTIAL_CONTENT).header(
+            header::CONTENT_RANGE,
+            format!("bytes {start}-{end}/{total_len}"),
+        );
     }
 
     builder
@@ -280,5 +282,3 @@ async fn stream_subtitle(
         .unwrap()
         .into_response()
 }
-
-

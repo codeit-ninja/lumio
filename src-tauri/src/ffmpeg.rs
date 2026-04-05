@@ -115,7 +115,8 @@ pub async fn transcode(
     let session = start_transcode(&ffmpeg, &stream_url, 0.0)?;
     let url = format!(
         "http://localhost:{}/transcode/{}",
-        state.server_port.load(std::sync::atomic::Ordering::SeqCst), session.id
+        state.server_port.load(std::sync::atomic::Ordering::SeqCst),
+        session.id
     );
 
     wait_for_bytes(&session.temp_file, 65536, &session.is_done).await;
@@ -147,7 +148,8 @@ pub async fn seek(
     let session = start_transcode(&ffmpeg, &stream_url, seek_time)?;
     let url = format!(
         "http://localhost:{}/transcode/{}",
-        state.server_port.load(std::sync::atomic::Ordering::SeqCst), session.id
+        state.server_port.load(std::sync::atomic::Ordering::SeqCst),
+        session.id
     );
 
     wait_for_bytes(&session.temp_file, 65536, &session.is_done).await;
@@ -161,7 +163,7 @@ pub async fn seek(
     Ok(url)
 }
 
-async fn kill_all_transcodes(state: &AppState) {
+pub async fn kill_all_transcodes(state: &AppState) {
     let mut sessions = state.transcode_sessions.lock().await;
     for (_, session) in sessions.drain() {
         if let Some(tx) = session.kill_tx {

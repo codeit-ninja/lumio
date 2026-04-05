@@ -1,3 +1,4 @@
+use crate::ffmpeg::kill_all_transcodes;
 use crate::state::{AppState, TorrentFile, TorrentInfo, TorrentProgress};
 use librqbit::api::TorrentIdOrHash;
 use librqbit_core::hash_id::Id;
@@ -94,6 +95,21 @@ pub async fn remove_torrent(
     state: State<'_, Arc<AppState>>,
     info_hash: String,
 ) -> Result<(), String> {
+    let id = parse_info_hash(&info_hash)?;
+    state
+        .torrent_session
+        .delete(id, true)
+        .await
+        .map_err(|e| format!("Failed to remove torrent: {e}"))?;
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn stop_and_remove(
+    state: State<'_, Arc<AppState>>,
+    info_hash: String,
+) -> Result<(), String> {
+    kill_all_transcodes(&state).await;
     let id = parse_info_hash(&info_hash)?;
     state
         .torrent_session
