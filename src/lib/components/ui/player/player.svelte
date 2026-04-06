@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { SubtitleTrack } from "$lib/webtorrent";
+    import type { AudioTrack, SubtitleTrack } from "$lib/webtorrent";
     import { createPlayer } from "./context.svelte";
     import PlayerControls from "./player-controls.svelte";
 
@@ -9,7 +9,8 @@
         duration?: number;
         onseek?: (time: number) => void;
         disabled?: boolean;
-        tracks?: SubtitleTrack[];
+        subtitleTracks?: SubtitleTrack[];
+        audioTracks?: AudioTrack[];
         needTranscode?: boolean;
     };
 
@@ -19,7 +20,8 @@
         duration,
         onseek,
         disabled = false,
-        tracks = [],
+        subtitleTracks = [],
+        audioTracks = [],
         needTranscode = false,
     }: Props = $props();
 
@@ -32,7 +34,8 @@
         ctx.duration = duration;
         ctx.onseek = onseek;
         ctx.disabled = disabled;
-        ctx.tracks = tracks;
+        ctx.subtitleTracks = subtitleTracks;
+        ctx.audioTracks = audioTracks;
         ctx.needTranscode = needTranscode;
     });
 

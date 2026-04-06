@@ -17,7 +17,7 @@
 >
     <span
         class={cn(
-            "text-gray-400",
+            "text-gray-300",
             level == 1 && "text-3xl",
             level == 2 && "text-2xl",
             level == 3 && "text-xl",

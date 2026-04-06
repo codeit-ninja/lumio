@@ -54,14 +54,14 @@
                     </Tabs.Trigger>
                 </Tabs.List>
                 <Tabs.Content value="build-in">
-                    {#if app.stream?.tracks.length === 0}
+                    {#if app.stream?.subtitleTracks.length === 0}
                         <div class="p-4 text-gray-400">
                             No build-in subtitles available.
                         </div>
                     {:else}
                         <ScrollArea class="max-h-100">
                             <div class="p-2 w-md">
-                                {#each app.stream?.tracks || [] as track (track.index)}
+                                {#each app.stream?.subtitleTracks || [] as track (track.index)}
                                     <button
                                         class="truncate text-start cursor-pointer rounded-md px-4 py-2 hover:bg-gray-700/50 transition-colors"
                                         type="button"

@@ -1,5 +1,6 @@
 import { createMovie, useMovie } from "./context.svelte.js";
 import MovieBackdrop from "./movie-backdrop.svelte";
+import MovieDetails from "./movie-details.svelte";
 import MovieDuration from "./movie-duration.svelte";
 import MovieGenres from "./movie-genres.svelte";
 import MovieLanguage from "./movie-language.svelte";
@@ -17,6 +18,7 @@ export {
     Movie as Root,
     MovieGenres as Genres,
     MovieLink as Link,
+    MovieDetails as Details,
     MoviePoster as Poster,
     MovieRating as Rating,
     MovieTitle as Title,

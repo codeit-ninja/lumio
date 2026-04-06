@@ -4,7 +4,7 @@
     import { scale } from "svelte/transition";
     import { dev } from "$app/environment";
     import { createApp } from "$lib/app";
-    import { createDialog, Dialog, Search } from "$lib/components/app";
+    import { createDialog, Search } from "$lib/components/app";
     import NavbarMain from "$lib/components/app/navbar/navbar-main.svelte";
     import { Trailer } from "$lib/components/app/trailer";
     import { Logo } from "$lib/components/logo";
@@ -23,7 +23,7 @@
 
     onMount(async () => {
         if (dev) {
-            // const { movie, torent } = await import("$lib/dev");
+            // const { movie, torrent } = await import("$lib/dev");
             // const { createStream } = await import("$lib/app");
             // // @ts-expect-error - this is just for development purposes
             // app.stream = await createStream(torrent, movie);
@@ -94,7 +94,8 @@
                 bind:this={player.current}
                 src={app.stream.streamUrl}
                 duration={app.stream.metadata?.duration}
-                tracks={app.stream.tracks}
+                subtitleTracks={app.stream.subtitleTracks}
+                audioTracks={app.stream.audioTracks}
                 needTranscode={app.stream.needTranscode}
                 onseek={(time: number) =>
                     app.stream!.seek(player.current, time)}

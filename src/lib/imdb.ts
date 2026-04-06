@@ -1,6 +1,5 @@
 /* eslint-disable */
 /* tslint:disable */
-// @ts-nocheck
 /*
  * ---------------------------------------------------------------
  * ## THIS FILE WAS GENERATED VIA SWAGGER-TYPESCRIPT-API        ##
@@ -710,22 +709,22 @@ export interface ImdbapiSeason {
 
 export interface IMDbMovieDetails {
     /** The unique identifier for the title. */
-    id?: string;
+    id: string;
     /** The type of the title, such as "movie", "tvSeries", "tvEpisode", etc. */
-    type?: string;
+    type: string;
     /** The is_adult field indicates whether the title is intended for adult audiences. */
-    isAdult?: boolean;
+    isAdult: boolean;
     /** The primary title of the title, which is typically the most recognized name. */
-    primaryTitle?: string;
+    primaryTitle: string;
     /** The original title of the title, normally which is the title as it was originally released. */
-    originalTitle?: string;
+    originalTitle: string;
     /** The primary image associated with the title, such as a poster. */
     primaryImage?: ImdbapiImage;
     /**
      * The start_year field is used for titles that have a defined start, such as movies or TV series.
      * @format int32
      */
-    startYear?: number;
+    startYear: number;
     /**
      * The end_year field is used for titles that have a defined end, such as TV series.
      * @format int32

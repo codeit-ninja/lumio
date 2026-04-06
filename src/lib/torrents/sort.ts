@@ -122,5 +122,11 @@ export function sortTorrents(
         );
     };
 
-    return [...torrents].sort((a, b) => score(b) - score(a));
+    const sorted = [...torrents].sort((a, b) => score(b) - score(a));
+
+    if (sorted.length > 0 && sorted[0].seeders < 10) {
+        return [...torrents].sort((a, b) => b.seeders - a.seeders);
+    }
+
+    return sorted;
 }

@@ -128,6 +128,7 @@ pub fn run() {
                     torrent_output_dir: torrent_output_dir.clone(),
                     transcode_sessions: Mutex::new(HashMap::new()),
                     subtitle_sessions: Mutex::new(HashMap::new()),
+                    audio_track_cache: Mutex::new(HashMap::new()),
                     subtitle_track_cache: Mutex::new(HashMap::new()),
                     ffmpeg_path,
                 });
@@ -157,6 +158,7 @@ pub fn run() {
             ffmpeg::probe,
             ffmpeg::transcode,
             ffmpeg::seek,
+            ffmpeg::get_audio_tracks,
             ffmpeg::get_server_port,
             subtitles::subtitles,
         ])

@@ -1,4 +1,4 @@
-use crate::state::AppState;
+use crate::state::{AppState, AudioTrack};
 use regex::Regex;
 use std::process::{Command, Stdio};
 use std::sync::Arc;
@@ -13,6 +13,152 @@ const BROWSER_AUDIO_CODECS: &[&str] = &["aac", "mp3", "mp2", "opus", "vorbis", "
 pub struct ProbeResult {
     pub needs_transcode: bool,
     pub duration: f64,
+}
+
+/// Intermediate audio stream data collected from ffmpeg stderr.
+#[derive(Debug, Clone)]
+struct AudioTrackMeta {
+    index: usize,
+    language: String,
+    title: String,
+    codec: String,
+    is_default: bool,
+}
+
+/// Sort key: tracks explicitly labelled "original" first, then default, then
+/// the rest.
+fn track_sort_key(t: &AudioTrackMeta) -> u8 {
+    if t.title.to_lowercase().contains("original") {
+        return 0;
+    }
+    if t.is_default {
+        return 1;
+    }
+    2
+}
+
+/// Probe `url` and return metadata for every audio stream found.
+fn probe_audio_streams(ffmpeg: &std::path::Path, url: &str) -> Vec<AudioTrackMeta> {
+    let output = Command::new(ffmpeg)
+        .args(["-probesize", "5000000", "-analyzeduration", "0", "-i", url])
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .output();
+
+    let stderr = match output {
+        Ok(o) => String::from_utf8_lossy(&o.stderr).to_string(),
+        Err(_) => return Vec::new(),
+    };
+
+    let stream_re = Regex::new(r"Stream #\d+:\d+(?:\((\w+)\))?: Audio: (\w+)(.*)").unwrap();
+    let title_re = Regex::new(r"^\s+title\s*:\s*(.+)$").unwrap();
+
+    let lines: Vec<&str> = stderr.lines().collect();
+    let mut tracks = Vec::new();
+    let mut audio_idx = 0usize;
+
+    let mut i = 0;
+    while i < lines.len() {
+        let line = lines[i];
+        if let Some(caps) = stream_re.captures(line) {
+            let language = caps.get(1).map(|m| m.as_str()).unwrap_or("").to_string();
+            let codec = caps
+                .get(2)
+                .map(|m| m.as_str())
+                .unwrap_or("unknown")
+                .to_string();
+            let rest = caps.get(3).map(|m| m.as_str()).unwrap_or("");
+            let is_default = rest.contains("(default)");
+
+            // Scan ahead for a metadata title line (stop at the next Stream line).
+            let mut title = String::new();
+            let mut j = i + 1;
+            while j < lines.len() {
+                let next = lines[j];
+                if next.trim_start().starts_with("Stream #") {
+                    break;
+                }
+                if let Some(tc) = title_re.captures(next) {
+                    title = tc[1].trim().to_string();
+                    break;
+                }
+                j += 1;
+            }
+
+            if title.is_empty() {
+                title = if !language.is_empty() {
+                    language.to_uppercase()
+                } else {
+                    format!("Track {}", audio_idx + 1)
+                };
+            }
+
+            tracks.push(AudioTrackMeta {
+                index: audio_idx,
+                language,
+                title,
+                codec,
+                is_default,
+            });
+            audio_idx += 1;
+        }
+        i += 1;
+    }
+
+    log::info!(
+        "[probe-audio] {} audio stream(s) in {}",
+        tracks.len(),
+        url
+    );
+    tracks
+}
+
+/// Return all audio tracks for a stream URL, sorted so original audio comes
+/// first and dubbed tracks come last.  Results are cached per URL.
+#[tauri::command]
+pub async fn get_audio_tracks(
+    state: State<'_, Arc<AppState>>,
+    stream_url: String,
+) -> Result<Vec<AudioTrack>, String> {
+    {
+        let cache = state.audio_track_cache.lock().await;
+        if let Some(cached) = cache.get(&stream_url) {
+            return Ok(cached.clone());
+        }
+    }
+
+    let ffmpeg = match &state.ffmpeg_path {
+        Some(p) => p.clone(),
+        None => return Ok(Vec::new()),
+    };
+
+    let url_clone = stream_url.clone();
+    let mut tracks =
+        tokio::task::spawn_blocking(move || probe_audio_streams(&ffmpeg, &url_clone))
+            .await
+            .map_err(|e| format!("Audio probe failed: {e}"))?;
+
+    // Original audio first (title contains "original"), then default track, then the rest.
+    tracks.sort_by_key(|t| track_sort_key(t));
+
+    let result: Vec<AudioTrack> = tracks
+        .into_iter()
+        .map(|t| AudioTrack {
+            index: t.index,
+            language: t.language,
+            title: t.title,
+            codec: t.codec,
+            is_default: t.is_default,
+        })
+        .collect();
+
+    state
+        .audio_track_cache
+        .lock()
+        .await
+        .insert(stream_url, result.clone());
+
+    Ok(result)
 }
 
 /// Probe a media file using ffmpeg to determine codec info and duration.
@@ -99,10 +245,13 @@ pub async fn probe(
 }
 
 /// Start an ffmpeg transcode process and return the stream URL.
+/// `audio_track` selects which audio stream (0-based) to include; defaults
+/// to 0 when omitted.
 #[tauri::command]
 pub async fn transcode(
     state: State<'_, Arc<AppState>>,
     stream_url: String,
+    audio_track: Option<usize>,
 ) -> Result<String, String> {
     let ffmpeg = state
         .ffmpeg_path
@@ -112,7 +261,7 @@ pub async fn transcode(
 
     kill_all_transcodes(&state).await;
 
-    let session = start_transcode(&ffmpeg, &stream_url, 0.0)?;
+    let session = start_transcode(&ffmpeg, &stream_url, 0.0, audio_track.unwrap_or(0))?;
     let url = format!(
         "http://localhost:{}/transcode/{}",
         state.server_port.load(std::sync::atomic::Ordering::SeqCst),
@@ -131,11 +280,14 @@ pub async fn transcode(
 }
 
 /// Seek: kill existing transcode, start a new one from seek offset.
+/// `audio_track` selects which audio stream (0-based) to include; defaults
+/// to 0 when omitted.
 #[tauri::command]
 pub async fn seek(
     state: State<'_, Arc<AppState>>,
     stream_url: String,
     seek_time: f64,
+    audio_track: Option<usize>,
 ) -> Result<String, String> {
     let ffmpeg = state
         .ffmpeg_path
@@ -145,7 +297,7 @@ pub async fn seek(
 
     kill_all_transcodes(&state).await;
 
-    let session = start_transcode(&ffmpeg, &stream_url, seek_time)?;
+    let session = start_transcode(&ffmpeg, &stream_url, seek_time, audio_track.unwrap_or(0))?;
     let url = format!(
         "http://localhost:{}/transcode/{}",
         state.server_port.load(std::sync::atomic::Ordering::SeqCst),
@@ -182,6 +334,7 @@ fn start_transcode(
     ffmpeg: &std::path::Path,
     src: &str,
     seek_time: f64,
+    audio_track: usize,
 ) -> Result<crate::state::TranscodeSession, String> {
     let id = uuid::Uuid::new_v4().to_string();
     let temp_dir = std::env::temp_dir().join(format!("lumio-{}", &id[..8]));
@@ -197,7 +350,7 @@ fn start_transcode(
         "-map".into(),
         "0:v:0".into(),
         "-map".into(),
-        "0:a:0?".into(),
+        format!("0:a:{audio_track}?"),
         "-c:v".into(),
         "libx264".into(),
         "-preset".into(),

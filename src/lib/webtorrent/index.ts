@@ -31,6 +31,14 @@ export interface TorrentProgress {
     timeRemaining: number;
 }
 
+export interface AudioTrack {
+    index: number;
+    language: string;
+    title: string;
+    codec: string;
+    isDefault: boolean;
+}
+
 export const webtorrent = {
     async add(magnet: string): Promise<TorrentInfo> {
         return invoke("add_torrent", { magnet });
@@ -54,16 +62,24 @@ export const webtorrent = {
         return invoke("probe", { streamUrl });
     },
 
-    async seek(streamUrl: string, seekTime: number): Promise<string> {
-        return invoke("seek", { streamUrl, seekTime });
+    async seek(
+        streamUrl: string,
+        seekTime: number,
+        audioTrack?: number,
+    ): Promise<string> {
+        return invoke("seek", { streamUrl, seekTime, audioTrack });
     },
 
-    async transcode(streamUrl: string): Promise<string> {
-        return invoke("transcode", { streamUrl });
+    async transcode(streamUrl: string, audioTrack?: number): Promise<string> {
+        return invoke("transcode", { streamUrl, audioTrack });
     },
 
     async subtitles(streamUrl: string): Promise<SubtitleTrack[]> {
         return invoke("subtitles", { streamUrl });
+    },
+
+    async getAudioTracks(streamUrl: string): Promise<AudioTrack[]> {
+        return invoke("get_audio_tracks", { streamUrl });
     },
 
     onProgress(callback: (data: TorrentProgress) => void): () => void {

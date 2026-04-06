@@ -1,5 +1,5 @@
 import type { WyzieSubtitle } from "$lib/subtitles";
-import type { SubtitleTrack } from "$lib/webtorrent";
+import type { AudioTrack, SubtitleTrack } from "$lib/webtorrent";
 import { getName } from "@cospired/i18n-iso-languages";
 import { createContext } from "svelte";
 import { attachTrack } from "./utils";
@@ -17,7 +17,8 @@ export class PlayerContext {
     duration = $state<number | undefined>();
     onseek = $state.raw<((time: number) => void) | undefined>(undefined);
     disabled = $state(false);
-    tracks = $state.raw<SubtitleTrack[]>([]);
+    subtitleTracks = $state.raw<SubtitleTrack[]>([]);
+    audioTracks = $state.raw<AudioTrack[]>([]);
     needTranscode = $state(false);
 
     // Playback state
@@ -30,6 +31,10 @@ export class PlayerContext {
     // Subtitle UI state
     showTrackMenu = $state(false);
     activeTrackIndex = $state<string | "">("");
+
+    // Audio UI state
+    showAudioMenu = $state(false);
+    activeAudioIndex = $state<number>();
 
     volume = $state(100);
     pausedAt = $state(0);

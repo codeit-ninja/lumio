@@ -25,6 +25,17 @@ pub struct TorrentInfo {
     pub files: Vec<TorrentFile>,
 }
 
+/// An audio track detected via ffprobe.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AudioTrack {
+    pub index: usize,
+    pub language: String,
+    pub title: String,
+    pub codec: String,
+    pub is_default: bool,
+}
+
 /// A subtitle track detected via ffprobe.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SubtitleTrack {
@@ -78,6 +89,8 @@ pub struct AppState {
     pub transcode_sessions: Mutex<HashMap<String, TranscodeSession>>,
     /// Active subtitle sessions keyed by `{stream_url}::{track_index}`.
     pub subtitle_sessions: Mutex<HashMap<String, SubtitleSession>>,
+    /// Cached audio track metadata per source URL.
+    pub audio_track_cache: Mutex<HashMap<String, Vec<AudioTrack>>>,
     /// Cached subtitle track metadata per source URL.
     pub subtitle_track_cache: Mutex<HashMap<String, Vec<SubtitleTrack>>>,
     /// Path to the ffmpeg binary (sidecar or system).

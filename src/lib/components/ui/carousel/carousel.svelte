@@ -1,38 +1,22 @@
 <script lang="ts">
-    import type { EmblaCarouselType, EmblaOptionsType } from "embla-carousel";
+    import type { EmblaOptionsType } from "embla-carousel";
     import type { HTMLAttributes } from "svelte/elements";
-    import EmblaCarousel from "embla-carousel";
-    import { onMount } from "svelte";
+    import { createEmblaCarousel } from "./context.svelte";
     import { cn } from "$lib/utils";
 
     type Props = {
-        ref?: HTMLDivElement;
-        embla?: EmblaCarouselType;
         options?: EmblaOptionsType;
     } & HTMLAttributes<HTMLDivElement>;
 
-    let {
-        options,
-        embla = $bindable(),
-        ref = $bindable(),
-        children,
-        ...restProps
-    }: Props = $props();
-
-    onMount(() => {
-        if (!ref) {
-            return;
-        }
-
-        embla = EmblaCarousel(ref, options);
-    });
+    let { options, children, ...restProps }: Props = $props();
+    let emble = createEmblaCarousel();
 </script>
 
 <div>
     <div
-        bind:this={ref}
+        {@attach emble.init(options)}
         {...restProps}
-        class={cn("overflow-hidden", restProps.class)}
+        class={cn("overflow-hidden relative", restProps.class)}
     >
         {@render children?.()}
     </div>

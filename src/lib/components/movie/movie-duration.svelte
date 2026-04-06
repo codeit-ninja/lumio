@@ -1,13 +1,14 @@
 <script lang="ts">
     import type { HTMLAttributes } from "svelte/elements";
     import { format, intervalToDuration } from "date-fns";
+    import { cn } from "tailwind-variants";
     import { useMovie } from "./context.svelte";
 
     const { ...restProps }: HTMLAttributes<HTMLSpanElement> = $props();
     const movie = useMovie();
 </script>
 
-<span {...restProps} class={restProps.class}>
+<span {...restProps} class={cn("inline-block", restProps.class)}>
     {#if movie.release_date}
         {format(new Date(movie.release_date), "yyyy")}
     {/if}

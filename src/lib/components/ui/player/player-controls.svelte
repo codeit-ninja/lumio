@@ -7,6 +7,7 @@
     import SpeakerLowIcon from "phosphor-svelte/lib/SpeakerLowIcon";
     import SpeakerNoneIcon from "phosphor-svelte/lib/SpeakerXIcon";
     import { usePlayer } from "./context.svelte";
+    import PlayerAudioTracks from "./player-audio-tracks.svelte";
     import PlayerSeekBar from "./player-seek-bar.svelte";
     import PlayerSubtitles from "./player-subtitles.svelte";
     import { cn } from "$lib/utils";
@@ -110,6 +111,7 @@
         </div>
 
         <div class="flex gap-4 justify-end items-center">
+            <PlayerAudioTracks />
             <PlayerSubtitles />
             <media-fullscreen-button
                 class={cn(

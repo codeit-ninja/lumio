@@ -1,7 +1,8 @@
-import type { Player } from "$lib/components/ui/player";
+import type { Player, PlayerContext } from "$lib/components/ui/player";
 import type { Movie } from "$lib/resources/movies.svelte";
 import type { WyzieSubtitle } from "$lib/subtitles";
 import type {
+    AudioTrack,
     SubtitleTrack,
     TorrentFile,
     TorrentInfo,
@@ -24,7 +25,8 @@ export type StreamOption = {
     video: TorrentFile;
     needTranscode: boolean;
     metadata: Metadata;
-    tracks: SubtitleTrack[];
+    subtitleTracks: SubtitleTrack[];
+    audioTracks: AudioTrack[];
 };
 
 export class Stream {
@@ -42,9 +44,10 @@ export class Stream {
 
     streamUrl = $derived<string>(this.video!.streamUrl);
 
-    tracks: SubtitleTrack[] = $state.raw([]);
-
+    audioTracks: AudioTrack[] = $state.raw([]);
+    subtitleTracks: SubtitleTrack[] = $state.raw([]);
     externalTracks: Record<string, WyzieSubtitle[]> = $state.raw({});
+    activeAudioTrack = $state.raw<AudioTrack | undefined>(undefined);
 
     selectedExternalLang = $derived.by(() =>
         Object.keys(this.externalTracks).length > 0
@@ -63,7 +66,8 @@ export class Stream {
         this.video = options.video;
         this.needTranscode = options.needTranscode;
         this.metadata = options.metadata;
-        this.tracks = options.tracks;
+        this.subtitleTracks = options.subtitleTracks;
+        this.audioTracks = options.audioTracks;
         this.movie = movie;
 
         if (!this.needTranscode) {
@@ -92,7 +96,7 @@ export class Stream {
             );
 
             resource(
-                () => $state.snapshot(this.tracks),
+                () => $state.snapshot(this.subtitleTracks),
                 async () => {
                     const wyzie = createWyzie(PUBLIC_WYZIE_API_KEY);
 
@@ -129,6 +133,35 @@ export class Stream {
         }
     }
 
+    async setAudioTrack(
+        ctx: PlayerContext,
+        track: AudioTrack,
+        currentTime: number,
+    ) {
+        if (this.seeking) {
+            return;
+        }
+
+        this.seeking = true;
+
+        try {
+            // Always re-transcode from the current position with the selected
+            // audio stream — this works whether we were already transcoding or
+            // playing natively (native HTML5 video has no audio-track API).
+            const newUrl = await webtorrent.seek(
+                this.video!.streamUrl,
+                currentTime,
+                track.index,
+            );
+            this.streamUrl = newUrl;
+            this.needTranscode = true;
+            this.activeAudioTrack = track;
+            ctx.seek(newUrl, currentTime);
+        } finally {
+            this.seeking = false;
+        }
+    }
+
     stop() {
         if (!this.torrent) {
             // TODO: Handle error here, this should never happen but just in case
@@ -152,13 +185,15 @@ export async function createStream(torrent: TorrentInfo, movie: Movie) {
     const { needsTranscode, duration } = await webtorrent.probe(
         video.streamUrl,
     );
-    const tracks = await webtorrent.subtitles(video.streamUrl);
+    const subtitleTracks = await webtorrent.subtitles(video.streamUrl);
+    const audioTracks = await webtorrent.getAudioTracks(video.streamUrl);
 
     return new Stream(movie, {
         torrent,
         video,
         needTranscode: needsTranscode,
         metadata: { duration },
-        tracks,
+        subtitleTracks,
+        audioTracks,
     });
 }

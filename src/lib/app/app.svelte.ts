@@ -1,7 +1,6 @@
 import type { Movie } from "$lib/resources/movies.svelte";
 import type { Stream } from "./stream.svelte";
 import type { Video } from "tmdb-ts/dist/types";
-import { VIDEO } from "apibay.org";
 import { createContext } from "svelte";
 import { getNetworkInfo, getDisplayInfo } from "tauri-plugin-device-info-api";
 import { createStream } from "./stream.svelte";
@@ -9,7 +8,7 @@ import { PUBLIC_WYZIE_API_KEY } from "$env/static/public";
 import { createWyzie } from "$lib/subtitles";
 import { TMDb } from "$lib/tmdb";
 import { sortTorrents } from "$lib/torrents/sort";
-import { getTorrents, tbp } from "$lib/torrents/thepiratebay";
+import { getTorrents } from "$lib/torrents/thepiratebay";
 import { createMagnetURI } from "$lib/utils";
 import { webtorrent } from "$lib/webtorrent";
 

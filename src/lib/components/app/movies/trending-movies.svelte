@@ -40,7 +40,7 @@
                                 </div>
                                 <Button
                                     href={resolve(`/movies/[id]`, {
-                                        id: movie.tmdbId.toString(),
+                                        id: movie.id,
                                     })}
                                     variant="primary"
                                     size="sm"
@@ -53,6 +53,8 @@
                     </Carousel.Item>
                 {/each}
             </Carousel.Container>
+            <Carousel.ButtonPrev />
+            <Carousel.ButtonNext />
         </Carousel.Root>
     {/if}
 </div>
