@@ -1,4 +1,3 @@
-import type { Player, PlayerContext } from "$lib/components/ui/player";
 import type { Movie } from "$lib/resources/movies.svelte";
 import type { WyzieSubtitle } from "$lib/subtitles";
 import type {
@@ -42,18 +41,12 @@ export class Stream {
 
     progress = $state<TorrentProgress>();
 
-    streamUrl = $derived<string>(this.video!.streamUrl);
+    streamUrl = $state<string>("");
 
     audioTracks: AudioTrack[] = $state.raw([]);
     subtitleTracks: SubtitleTrack[] = $state.raw([]);
     externalTracks: Record<string, WyzieSubtitle[]> = $state.raw({});
     activeAudioTrack = $state.raw<AudioTrack | undefined>(undefined);
-
-    selectedExternalLang = $derived.by(() =>
-        Object.keys(this.externalTracks).length > 0
-            ? Object.keys(this.externalTracks)[0]
-            : "",
-    );
 
     seeking = $state(false);
 
@@ -69,6 +62,7 @@ export class Stream {
         this.subtitleTracks = options.subtitleTracks;
         this.audioTracks = options.audioTracks;
         this.movie = movie;
+        this.streamUrl = options.video.streamUrl;
 
         if (!this.needTranscode) {
             this.canPlay = true;
@@ -106,6 +100,7 @@ export class Stream {
                                 this.movie.id ||
                                 this.movie.tmdbId.toString() ||
                                 `${this.movie.title} (${this.movie.startYear})`,
+                            source: ["subf2m"],
                         })
                         .then((results) => {
                             console.log(results);
@@ -116,9 +111,9 @@ export class Stream {
         });
     }
 
-    async seek(player: Player, time: number) {
+    async seek(time: number): Promise<string> {
         if (this.seeking) {
-            return;
+            return this.streamUrl;
         }
 
         this.seeking = true;
@@ -126,20 +121,18 @@ export class Stream {
         try {
             const newUrl = await webtorrent.seek(this.video!.streamUrl, time);
             this.streamUrl = newUrl;
-            // Apply imperatively so the <Player> component does not unmount
-            player.seek(newUrl, time);
+            return newUrl;
         } finally {
             this.seeking = false;
         }
     }
 
     async setAudioTrack(
-        ctx: PlayerContext,
         track: AudioTrack,
         currentTime: number,
-    ) {
+    ): Promise<string> {
         if (this.seeking) {
-            return;
+            return this.streamUrl;
         }
 
         this.seeking = true;
@@ -156,7 +149,7 @@ export class Stream {
             this.streamUrl = newUrl;
             this.needTranscode = true;
             this.activeAudioTrack = track;
-            ctx.seek(newUrl, currentTime);
+            return newUrl;
         } finally {
             this.seeking = false;
         }

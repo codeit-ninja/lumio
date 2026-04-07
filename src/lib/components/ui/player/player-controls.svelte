@@ -21,7 +21,7 @@
         "text-white absolute left-0 right-0 -bottom-40 p-6 z-20",
         "transition-[bottom] duration-200",
         "group-data-controls/media:bottom-0 group-data-paused/media:bottom-0",
-        ctx.showTrackMenu && "bottom-0!",
+        (ctx.showTrackMenu || ctx.showAudioTrackMenu) && "bottom-0!",
     )}
 >
     <PlayerSeekBar />

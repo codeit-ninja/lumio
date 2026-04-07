@@ -3,16 +3,20 @@
     import { Popover } from "bits-ui";
     import { cn } from "tailwind-variants";
 
-    type Props = {} & WithoutChild<Popover.ContentProps>;
+    type Props = {
+        variant?: "light" | "dark";
+    } & WithoutChild<Popover.ContentProps>;
 
-    let { children, ...restProps }: Props = $props();
+    let { variant = "dark", children, ...restProps }: Props = $props();
 </script>
 
 <Popover.Content
     {...restProps}
     class={cn(
-        "z-50 bg-linear-(--gradient-liquid-100) backdrop-blur-xl rounded-lg text-white min-w-md text-sm",
-        "border border-white/10 shadow-sm",
+        "z-50 backdrop-blur-xl text-white text-sm",
+        "border border-white/10 shadow-sm rounded-4xl corner-squircle",
+        variant === "light" && "bg-linear-(--gradient-liquid-100)",
+        variant === "dark" && "bg-linear-to-br from-gray-800/80 to-gray-800/70",
         restProps.class,
     )}
 >

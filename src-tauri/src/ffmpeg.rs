@@ -105,11 +105,7 @@ fn probe_audio_streams(ffmpeg: &std::path::Path, url: &str) -> Vec<AudioTrackMet
         i += 1;
     }
 
-    log::info!(
-        "[probe-audio] {} audio stream(s) in {}",
-        tracks.len(),
-        url
-    );
+    log::info!("[probe-audio] {} audio stream(s) in {}", tracks.len(), url);
     tracks
 }
 
@@ -133,10 +129,9 @@ pub async fn get_audio_tracks(
     };
 
     let url_clone = stream_url.clone();
-    let mut tracks =
-        tokio::task::spawn_blocking(move || probe_audio_streams(&ffmpeg, &url_clone))
-            .await
-            .map_err(|e| format!("Audio probe failed: {e}"))?;
+    let mut tracks = tokio::task::spawn_blocking(move || probe_audio_streams(&ffmpeg, &url_clone))
+        .await
+        .map_err(|e| format!("Audio probe failed: {e}"))?;
 
     // Original audio first (title contains "original"), then default track, then the rest.
     tracks.sort_by_key(|t| track_sort_key(t));

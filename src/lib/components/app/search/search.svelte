@@ -1,13 +1,14 @@
 <script lang="ts">
-    import { Popover } from "bits-ui";
     import { isEmpty } from "lodash-es";
     import { Debounced, resource } from "runed";
     import { resolve } from "$app/paths";
-    import * as Movie from "$lib/components/movie";
+    import { Img } from "$lib/components/ui/img";
     import { Input } from "$lib/components/ui/input";
+    import * as Popover from "$lib/components/ui/popover";
     import { ScrollArea } from "$lib/components/ui/scroll-area";
-    import { TMDb } from "$lib/tmdb";
-    import { cn } from "$lib/utils";
+    import { StarIcon } from "$lib/icons";
+    import { IMDb } from "$lib/imdb";
+    import { cn, formatNumber } from "$lib/utils";
 
     let search = $state<string>();
     let query = new Debounced(() => search, 300);
@@ -22,22 +23,17 @@
                 return;
             }
 
-            return TMDb.search
-                .multi({
-                    query: query.current!,
-                })
-                .then(({ results }) =>
-                    results.filter(
-                        (result) =>
-                            ["movie", "tv"].includes(result.media_type) &&
-                            "vote_count" in result &&
-                            result.vote_count > 0 &&
-                            "vote_average" in result &&
-                            result.vote_average > 1,
-                    ),
-                )
-                .finally(() => {
+            return IMDb.search
+                .imDbApiServiceSearchTitles({ query: query.current!, limit: 5 })
+                .then((response) => {
                     open = true;
+
+                    return (
+                        response.titles?.filter(
+                            (item) =>
+                                item.startYear <= new Date().getFullYear(),
+                        ) ?? []
+                    );
                 });
         },
     );
@@ -51,6 +47,55 @@
     autocomplete="off"
 />
 <Popover.Root bind:open>
+    <Popover.Content
+        {customAnchor}
+        sideOffset={8}
+        trapFocus={false}
+        onOpenAutoFocus={(event) => {
+            event.preventDefault();
+        }}
+        class={cn("w-(--bits-popover-anchor-width) overflow-clip")}
+    >
+        <ScrollArea class="max-h-120 p-4">
+            {#each results.current as movie (movie.id)}
+                <a
+                    href={resolve("/movies/[id]", { id: movie.id })}
+                    class={cn(
+                        "bg-linear-to-br from-transparent to-transparent grid grid-cols-[100px_1fr] gap-4 not-last:mb-4 transition-all",
+                        "border border-transparent rounded-xl overflow-clip",
+                        "hover:border-white/10 hover:shadow-sm",
+                    )}
+                    onclick={() => {
+                        open = false;
+                    }}
+                >
+                    <Img
+                        src={movie.primaryImage?.url}
+                        wsrv={{ w: 100 }}
+                        class="rounded-2xl corner-squircle"
+                    />
+                    <div class="py-1">
+                        <h3 class="font-heading text-lg mb-4">
+                            {movie.primaryTitle} ({movie.startYear})
+                        </h3>
+                        <div class="flex items-center gap-2 text-lg">
+                            <StarIcon
+                                class="text-rating size-8 relative bottom-0.5"
+                            />
+                            <span>
+                                {movie.rating?.aggregateRating?.toFixed(1)}
+                            </span>
+                            <span class="text-sm font-medium text-gray-400">
+                                {formatNumber(movie.rating?.voteCount ?? 0)}
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            {/each}
+        </ScrollArea>
+    </Popover.Content>
+</Popover.Root>
+<!-- <Popover.Root bind:open>
     <Popover.Content
         {customAnchor}
         class={cn(
@@ -96,4 +141,4 @@
             {/each}
         </ScrollArea>
     </Popover.Content>
-</Popover.Root>
+</Popover.Root> -->

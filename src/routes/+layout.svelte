@@ -2,6 +2,7 @@
     import ArrowLeftIcon from "phosphor-svelte/lib/ArrowLeftIcon";
     import { onMount } from "svelte";
     import { scale } from "svelte/transition";
+    import { Toaster } from "svelte-sonner";
     import { dev } from "$app/environment";
     import { createApp } from "$lib/app";
     import { createDialog, Search } from "$lib/components/app";
@@ -67,11 +68,9 @@
 </div>
 
 <Trailer />
+<Toaster richColors theme="dark" />
 
 {#if app.stream && app.stream.canPlay}
-    {@const player = {
-        current: undefined as unknown as ReturnType<typeof Player>,
-    }}
     <div
         class="fixed inset-0 bg-black h-screen w-screen z-50"
         in:scale={{ duration: 75 }}
@@ -90,16 +89,7 @@
             </button>
         </div>
         <div class="relative top-1/2 w-full -translate-y-1/2">
-            <Player
-                bind:this={player.current}
-                src={app.stream.streamUrl}
-                duration={app.stream.metadata?.duration}
-                subtitleTracks={app.stream.subtitleTracks}
-                audioTracks={app.stream.audioTracks}
-                needTranscode={app.stream.needTranscode}
-                onseek={(time: number) =>
-                    app.stream!.seek(player.current, time)}
-            />
+            <Player stream={app.stream} />
         </div>
     </div>
 {/if}

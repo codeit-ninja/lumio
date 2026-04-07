@@ -4,7 +4,7 @@
     import { Popover } from "bits-ui";
 
     type Props = {
-        trigger: Snippet<[{ props: Record<string, unknown> }]>;
+        trigger?: Snippet<[{ props: Record<string, unknown> }]>;
     } & WithoutChild<Popover.RootProps>;
 
     let {
@@ -16,11 +16,13 @@
 </script>
 
 <Popover.Root {...restProps} bind:open>
-    <Popover.Trigger>
-        {#snippet child({ props })}
-            {@render trigger({ props })}
-        {/snippet}
-    </Popover.Trigger>
+    {#if trigger}
+        <Popover.Trigger>
+            {#snippet child({ props })}
+                {@render trigger({ props })}
+            {/snippet}
+        </Popover.Trigger>
+    {/if}
     <Popover.Portal>
         {@render children?.()}
     </Popover.Portal>

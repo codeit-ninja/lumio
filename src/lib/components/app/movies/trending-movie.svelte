@@ -3,7 +3,7 @@
     import { useMovies } from "$lib/resources";
 
     const movies = useMovies();
-    const movie = $derived(movies.trending.current?.at(2));
+    const movie = $derived(movies.trending.current?.at(0));
 
     $inspect(movie);
 </script>
@@ -15,7 +15,12 @@
             class="absolute inset-0 p-6 bg-primary-950/40 rounded-4xl corner-squircle"
         >
             <div class="flex flex-col h-full">
-                <Movie.Genres size="lg" class="mb-8" />
+                <div class="grid grid-cols-[auto_200px] items-start">
+                    <Movie.Genres size="lg" class="mb-8" />
+                    <div class="ms-auto">
+                        <Movie.Favorites />
+                    </div>
+                </div>
                 <Movie.Rating size="lg" />
                 <div class="mt-auto">
                     <Movie.Title level="1" />

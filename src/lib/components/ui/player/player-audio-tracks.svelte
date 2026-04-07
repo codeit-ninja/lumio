@@ -1,15 +1,13 @@
 <script lang="ts">
     import { usePlayer } from ".";
-    import { useApp } from "$lib/app";
     import * as Popover from "$lib/components/ui/popover";
     import AudioIcon from "$lib/icons/audio-icon.svelte";
     import { cn } from "$lib/utils";
 
     const ctx = usePlayer();
-    const app = useApp();
 </script>
 
-<Popover.Root open={true}>
+<Popover.Root bind:open={ctx.showAudioTrackMenu}>
     {#snippet trigger({ props })}
         <button
             class={cn(
@@ -23,22 +21,17 @@
             <AudioIcon />
         </button>
     {/snippet}
-    <Popover.Content align="end" side="top" sideOffset={8}>
-        <div class="p-4">
+    <Popover.Content align="end" side="top" sideOffset={8} class="max-w-3xs">
+        <div class="p-1">
             {#if ctx.audioTracks.length === 0}
                 <div class="p-4 text-gray-400">No audio tracks available.</div>
             {:else}
                 {#each ctx.audioTracks as track, i (track.index)}
                     <button
-                        onclick={() =>
-                            app.stream!.setAudioTrack(
-                                ctx,
-                                track,
-                                ctx.displayTime,
-                            )}
+                        onclick={() => ctx.setAudioTrack(track)}
                         class={cn(
-                            "w-full text-left px-3 py-2 rounded-md",
-                            track.index === app.stream?.activeAudioTrack?.index
+                            "w-full text-left px-3 py-2 rounded-md cursor-pointer truncate",
+                            track.index === ctx.audioTrack?.index
                                 ? "bg-linear-(--gradient-liquid-200) border-white/10 shadow-xs"
                                 : "hover:bg-gray-100/20",
                         )}

@@ -44,6 +44,7 @@ fn find_ffmpeg(app: &tauri::AppHandle) -> Option<std::path::PathBuf> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_sql::Builder::new().build())
         .plugin(tauri_plugin_device_info::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_http::init())
@@ -53,11 +54,12 @@ pub fn run() {
                 app.handle().plugin(
                     tauri_plugin_log::Builder::default()
                         .level(log::LevelFilter::Info)
-                        // DHT probes fail constantly by design — suppress the noise.
-                        .level_for("librqbit_dht", log::LevelFilter::Warn)
-                        // librqbit uses tracing spans that close at ERROR level
-                        // for normal peer churn — not actionable, hide them.
-                        .level_for("tracing", log::LevelFilter::Warn)
+                        // librqbit peer/DHT churn logs ERROR for routine
+                        // network failures — silence the entire crate except
+                        // our own app_lib logs.
+                        .level_for("librqbit", log::LevelFilter::Off)
+                        .level_for("librqbit_dht", log::LevelFilter::Off)
+                        .level_for("tracing", log::LevelFilter::Off)
                         .build(),
                 )?;
             }

@@ -1,8 +1,8 @@
+import type { Plugin } from "vite";
+import { readFileSync } from "fs";
 import { sveltekit } from "@sveltejs/kit/vite";
 import tailwindcss from "@tailwindcss/vite";
-import { readFileSync } from "fs";
 import { vite as vidstack } from "vidstack/plugins";
-import type { Plugin } from "vite";
 import { defineConfig } from "vite";
 
 // bits-ui ships pre-compiled .svelte files. When vite-plugin-svelte fails to
@@ -15,7 +15,7 @@ function bitsUiCssPlugin(): Plugin {
         enforce: "pre",
         load(id) {
             if (
-                id.includes("/node_modules/bits-ui/") &&
+                id.includes("/node_modules/") &&
                 /[?&]svelte&type=style&lang\.css$/.test(id)
             ) {
                 const filePath = id.replace(/\?.*$/, "");
@@ -37,8 +37,8 @@ function bitsUiCssPlugin(): Plugin {
 }
 
 export default defineConfig({
-    plugins: [bitsUiCssPlugin(), tailwindcss(), vidstack(), sveltekit()],
+    plugins: [bitsUiCssPlugin(), vidstack(), sveltekit(), tailwindcss()],
     optimizeDeps: {
-        exclude: ["runed", "phosphor-svelte", "bits-ui"],
+        exclude: ["runed", "phosphor-svelte", "bits-ui", "svelte-sonner"],
     },
 });

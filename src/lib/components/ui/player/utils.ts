@@ -28,14 +28,14 @@ export const attachTrack = async (
         cues.splice(0, index);
     }
 
-    cues.forEach((c) =>
-        textTrack.addCue(
-            new VTTCue(
-                c.startTime - (offset ?? 0),
-                c.endTime - (offset ?? 0),
-                c.text,
-            ),
-        ),
-    );
+    cues.forEach((c) => {
+        const cue = new VTTCue(
+            c.startTime - (offset ?? 0),
+            c.endTime - (offset ?? 0),
+            c.text,
+        );
+        cue.line = -3;
+        textTrack.addCue(cue);
+    });
     textTrack.mode = "showing";
 };

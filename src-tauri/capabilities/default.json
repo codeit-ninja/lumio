@@ -39,6 +39,8 @@
       ]
     },
     "os:default",
-    "device-info:default"
+    "device-info:default",
+    "sql:default",
+    "sql:allow-execute"
   ]
 }

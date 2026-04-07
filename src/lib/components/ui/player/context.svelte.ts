@@ -1,28 +1,19 @@
+import type { Stream } from "$lib/app/stream.svelte";
 import type { WyzieSubtitle } from "$lib/subtitles";
 import type { AudioTrack, SubtitleTrack } from "$lib/webtorrent";
+import type { Track } from "./utils";
 import { getName } from "@cospired/i18n-iso-languages";
+import { watch } from "runed";
 import { createContext } from "svelte";
 import { attachTrack } from "./utils";
 
-export type Track = {
-    label: string;
-    src: string;
-    language: string;
-};
-
 export class PlayerContext {
-    // Props — synced from player.svelte via $effect
-    src = $state("");
+    // Stream reference — set from player.svelte via $effect
+    stream = $state<Stream>();
     poster = $state<string | undefined>();
-    duration = $state<number | undefined>();
-    onseek = $state.raw<((time: number) => void) | undefined>(undefined);
-    disabled = $state(false);
-    subtitleTracks = $state.raw<SubtitleTrack[]>([]);
-    audioTracks = $state.raw<AudioTrack[]>([]);
-    needTranscode = $state(false);
 
     // Playback state
-    paused = $state(true);
+    paused = $derived<boolean>(this.stream?.seeking || true);
     displayTime = $state(0);
     dragging = $state(false);
     seeking = $state(false);
@@ -31,18 +22,27 @@ export class PlayerContext {
     // Subtitle UI state
     showTrackMenu = $state(false);
     activeTrackIndex = $state<string | "">("");
+    selectedExternalLang = $state("");
 
-    // Audio UI state
-    showAudioMenu = $state(false);
-    activeAudioIndex = $state<number>();
+    showAudioTrackMenu = $state(false);
 
     volume = $state(100);
     pausedAt = $state(0);
     track: Track | null = $state(null);
+    audioTrack: AudioTrack | null = $state(null);
 
     // DOM refs — set by the attachment, not reactive
     playerEl: HTMLElement | null = null;
     videoEl: HTMLVideoElement | null = null;
+
+    // Derived from stream
+    readonly needTranscode = $derived(this.stream?.needTranscode ?? false);
+    readonly duration = $derived(this.stream?.metadata?.duration);
+    readonly src = $derived(this.stream?.streamUrl ?? "");
+    readonly disabled = $derived(this.stream?.seeking ?? false);
+    readonly audioTracks = $derived(this.stream?.audioTracks ?? []);
+    readonly subtitleTracks = $derived(this.stream?.subtitleTracks ?? []);
+    readonly externalTracks = $derived(this.stream?.externalTracks ?? {});
 
     readonly fillPct = $derived(
         this.duration && this.duration > 0
@@ -50,12 +50,23 @@ export class PlayerContext {
             : 0,
     );
 
+    constructor() {
+        watch(
+            () => this.stream?.seeking,
+            () => {
+                if (this.stream?.seeking) {
+                    this.videoEl?.pause();
+                }
+            },
+        );
+    }
+
     togglePlay() {
         if (this.videoEl?.paused) {
             if (this.needTranscode && this.pausedAt > 0) {
                 const t = this.pausedAt;
                 this.pausedAt = 0;
-                this.onseek?.(t);
+                this.handleSeek(t);
             } else {
                 this.videoEl.play().catch(() => {});
             }
@@ -65,11 +76,13 @@ export class PlayerContext {
         }
     }
 
-    seek(newSrc: string, atTime: number) {
-        this.seekOffset = atTime;
-        this.displayTime = atTime;
+    async handleSeek(time: number) {
+        if (!this.stream) return;
+        const newUrl = await this.stream.seek(time);
+        this.seekOffset = time;
+        this.displayTime = time;
         this.seeking = false;
-        this.playerEl?.setAttribute("src", newSrc);
+        this.playerEl?.setAttribute("src", newUrl);
     }
 
     async setTrack(subtitle: SubtitleTrack | WyzieSubtitle) {
@@ -86,6 +99,21 @@ export class PlayerContext {
                 this.needTranscode ? this.seekOffset : undefined,
             );
         }
+    }
+
+    async setAudioTrack(track: AudioTrack) {
+        this.showAudioTrackMenu = false;
+
+        if (!this.stream) {
+            return;
+        }
+
+        const newUrl = await this.stream.setAudioTrack(track, this.displayTime);
+
+        this.audioTrack = track;
+        this.seekOffset = this.displayTime;
+        this.seeking = false;
+        this.playerEl?.setAttribute("src", newUrl);
     }
 
     /** Attach to the root `<media-player>` element via `{@attach ctx.action}`. */

@@ -1,57 +1,32 @@
 <script lang="ts">
-    import type { AudioTrack, SubtitleTrack } from "$lib/webtorrent";
+    import type { Stream } from "$lib/app/stream.svelte";
     import { createPlayer } from "./context.svelte";
     import PlayerControls from "./player-controls.svelte";
+    import { SpinnerIcon } from "$lib/icons";
 
     type Props = {
-        src: string;
+        stream: Stream;
         poster?: string;
-        duration?: number;
-        onseek?: (time: number) => void;
-        disabled?: boolean;
-        subtitleTracks?: SubtitleTrack[];
-        audioTracks?: AudioTrack[];
-        needTranscode?: boolean;
     };
 
-    let {
-        src,
-        poster,
-        duration,
-        onseek,
-        disabled = false,
-        subtitleTracks = [],
-        audioTracks = [],
-        needTranscode = false,
-    }: Props = $props();
+    let { stream, poster }: Props = $props();
 
     const ctx = createPlayer();
 
     // Sync props into context so sub-components can read them via usePlayer()
     $effect(() => {
-        ctx.src = src;
+        ctx.stream = stream;
         ctx.poster = poster;
-        ctx.duration = duration;
-        ctx.onseek = onseek;
-        ctx.disabled = disabled;
-        ctx.subtitleTracks = subtitleTracks;
-        ctx.audioTracks = audioTracks;
-        ctx.needTranscode = needTranscode;
     });
 
     // Keep the media-player src attribute current when it changes after mount
     $effect(() => {
         ctx.playerEl?.setAttribute("src", ctx.src);
     });
-
-    /** Called imperatively by the parent to seek without unmounting the player. */
-    export function seek(newSrc: string, atTime: number) {
-        ctx.seek(newSrc, atTime);
-    }
 </script>
 
 <media-player
-    {src}
+    src={ctx.src}
     class="block! relative group/media overflow-clip"
     {@attach ctx.action}
 >
@@ -63,6 +38,12 @@
             ></media-poster>
         {/if}
     </media-provider>
+
+    {#if ctx.stream?.seeking}
+        <SpinnerIcon
+            class="absolute inset-0 m-auto z-55 size-18 text-primary-300"
+        />
+    {/if}
 
     <PlayerControls />
 </media-player>

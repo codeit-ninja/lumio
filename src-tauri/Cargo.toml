@@ -39,3 +39,4 @@ urlencoding = "2"
 tauri-plugin-http = "2"
 tauri-plugin-os = "2"
 tauri-plugin-device-info = "1.0.1"
+tauri-plugin-sql = { version = "2", features = ["sqlite"] }

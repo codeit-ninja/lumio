@@ -60,3 +60,8 @@ export function fetchSRT(url: string): Promise<string> {
             throw new Error("Failed to fetch subtitles");
         });
 }
+
+export const formatNumber = (num: number): string => {
+    const formatter = Intl.NumberFormat("en", { notation: "compact" });
+    return formatter.format(num);
+};

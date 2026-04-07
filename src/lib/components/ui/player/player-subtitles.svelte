@@ -4,11 +4,16 @@
     import SubtitlesIcon from "phosphor-svelte/lib/SubtitlesIcon";
     import { ScrollArea } from "../scroll-area";
     import { usePlayer } from ".";
-    import { useApp } from "$lib/app";
     import { cn } from "$lib/utils";
 
     const ctx = usePlayer();
-    const app = useApp();
+
+    $effect(() => {
+        const langs = Object.keys(ctx.externalTracks);
+        if (langs.length > 0 && !ctx.selectedExternalLang) {
+            ctx.selectedExternalLang = langs[0];
+        }
+    });
 </script>
 
 <div class="relative">
@@ -54,14 +59,14 @@
                     </Tabs.Trigger>
                 </Tabs.List>
                 <Tabs.Content value="build-in">
-                    {#if app.stream?.subtitleTracks.length === 0}
+                    {#if ctx.subtitleTracks.length === 0}
                         <div class="p-4 text-gray-400">
                             No build-in subtitles available.
                         </div>
                     {:else}
                         <ScrollArea class="max-h-100">
                             <div class="p-2 w-md">
-                                {#each app.stream?.subtitleTracks || [] as track (track.index)}
+                                {#each ctx.subtitleTracks as track (track.index)}
                                     <button
                                         class="truncate text-start cursor-pointer rounded-md px-4 py-2 hover:bg-gray-700/50 transition-colors"
                                         type="button"
@@ -80,19 +85,20 @@
                 <Tabs.Content value="external">
                     <Tabs.Root
                         class="grid grid-cols-[10rem_auto]"
-                        bind:value={app.stream!.selectedExternalLang}
+                        bind:value={ctx.selectedExternalLang}
                     >
                         <ScrollArea class="max-h-100">
                             <Tabs.List
                                 class="flex flex-col gap-2 p-1.5 border-r border-white/10"
                             >
-                                {#each Object.keys(app.stream?.externalTracks || {}) as lang (lang)}
+                                {#each Object.keys(ctx.externalTracks) as lang (lang)}
                                     <Tabs.Trigger
                                         value={lang}
                                         class={cn(
                                             "grid px-3 py-1.5 rounded-md cursor-pointer transition-colors text-start border border-transparent text-shadow-sm",
-                                            "data-[state=active]:bg-linear-(--gradient-liquid-200) data-[state=active]:text-white data-[state=active]:border-white/10",
-                                            "data-[state=active]:shadow-xs",
+                                            "hover:bg-white/20",
+                                            "data-[state=active]:bg-linear-(--gradient-liquid-200) data-[state=active]:text-white",
+                                            "data-[state=active]:shadow-xs data-[state=active]:border-white/10",
                                         )}
                                     >
                                         <span class="truncate">
@@ -104,15 +110,16 @@
                             </Tabs.List>
                         </ScrollArea>
                         <ScrollArea class="max-h-100">
-                            {#each Object.keys(app.stream?.externalTracks || {}) as lang (lang)}
+                            {#each Object.keys(ctx.externalTracks) as lang (lang)}
                                 <Tabs.Content
                                     value={lang}
                                     class="p-1.5 flex flex-col justify-start w-md gap-1"
                                 >
-                                    {#each app.stream?.externalTracks[lang] || [] as track (track.id)}
+                                    {#each ctx.externalTracks[lang] || [] as track (track.id)}
                                         <button
                                             class={cn(
                                                 "truncate text-start cursor-pointer rounded-md px-3 py-1.5 transition-colors border border-transparent text-shadow-sm",
+                                                "hover:bg-white/20",
                                                 track.url === ctx.track?.src &&
                                                     "bg-linear-(--gradient-liquid-200) border-white/10 shadow-xs",
                                             )}
@@ -121,7 +128,9 @@
                                                 ctx.setTrack(track);
                                             }}
                                         >
-                                            {track.fileName}
+                                            {track.fileName ||
+                                                track.release ||
+                                                track.media}
                                         </button>
                                     {/each}
                                 </Tabs.Content>

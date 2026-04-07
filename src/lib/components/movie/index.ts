@@ -2,6 +2,7 @@ import { createMovie, useMovie } from "./context.svelte.js";
 import MovieBackdrop from "./movie-backdrop.svelte";
 import MovieDetails from "./movie-details.svelte";
 import MovieDuration from "./movie-duration.svelte";
+import MovieFavorites from "./movie-favorites.svelte";
 import MovieGenres from "./movie-genres.svelte";
 import MovieLanguage from "./movie-language.svelte";
 import MovieLink from "./movie-link.svelte";
@@ -28,5 +29,6 @@ export {
     MovieWatch as Watch,
     MovieTrailer as Trailer,
     MoviePlot as Plot,
+    MovieFavorites as Favorites,
     useMovie,
 };

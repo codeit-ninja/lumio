@@ -69,6 +69,7 @@ export default defineConfig([
         rules: {
             "svelte/no-navigation-without-resolve": "off",
             "svelte/element_invalid_self_closing_tag": "off",
+            "svelte/no-at-html-tags": "off",
             "no-useless-assignment": "off",
             "@typescript-eslint/no-explicit-any": "off",
         },

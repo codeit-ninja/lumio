@@ -42,7 +42,7 @@
             ctx.dragging = false;
             ctx.seeking = true;
             ctx.displayTime = parseFloat(e.currentTarget.value);
-            ctx.onseek?.(ctx.displayTime);
+            ctx.handleSeek(ctx.displayTime);
         }}
     />
 </div>
