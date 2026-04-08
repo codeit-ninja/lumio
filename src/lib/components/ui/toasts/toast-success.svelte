@@ -12,15 +12,15 @@
 
 <div
     class={cn(
-        "rounded-xl corner-squircle bg-success-950 border border-success-500",
+        "rounded-xl corner-squircle bg-gray-900 border border-gray-700",
         "flex items-start shadow-lg",
     )}
 >
-    <div class="p-2">
-        <CheckRoundedIcon class="text-success-50 size-6 relative top-0.5" />
+    <div class="py-3 ps-3">
+        <CheckRoundedIcon class="text-success-300 size-6 relative top-0.5" />
     </div>
-    <div class="p-2 text-sm grow">
-        <h5 class="font-heading font-base text-lg text-success-50">{title}</h5>
-        <p class="pt-2 pb-2 text-success-100">{@html message}</p>
+    <div class="p-3 text-sm grow">
+        <h5 class="font-heading font-base text-lg text-success-300">{title}</h5>
+        <p class="pt-3 pb-2 text-success-50 min-w-xs">{@html message}</p>
     </div>
 </div>

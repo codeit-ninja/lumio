@@ -11,13 +11,17 @@
 
     let isLoading = $state(false);
     let movie = useMovie();
-    let isFavorite = $derived(
-        await orm
-            .select(favoriteListItems)
-            .where(eq(favoriteListItems._.columns.imdbId, movie.id))
-            .exists(),
-    );
+    let isFavorite = $state(false);
     let didAddToFavorites = $state(false);
+
+    $effect(() => {
+        orm.select(favoriteListItems)
+            .where(eq(favoriteListItems._.columns.imdbId, movie.id))
+            .exists()
+            .then((val) => {
+                isFavorite = val;
+            });
+    });
 
     let addToFavorites = () => {
         isLoading = true;
@@ -55,6 +59,7 @@
             .values({
                 favoriteListId: 1,
                 imdbId: movie.id,
+                movie: movie,
             })
             .execute()
             .then(() => {
@@ -81,21 +86,17 @@
 
                 setTimeout(() => {
                     didAddToFavorites = false;
-                }, 1500);
+                }, 300);
             });
     };
 </script>
 
 <Button
-    class={cn(
-        "corner-none!",
-        isFavorite && "[&>svg]:text-destructive-400",
-        didAddToFavorites && "[&>svg]:animate-tada",
-    )}
+    class={cn("corner-none!", isFavorite && "[&>svg]:text-destructive-400")}
     size="icon-lg"
     variant="ghost"
     onclick={addToFavorites}
     loading={isLoading}
 >
-    <HeartIcon />
+    <HeartIcon animate={didAddToFavorites || isFavorite} />
 </Button>

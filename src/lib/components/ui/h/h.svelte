@@ -13,7 +13,7 @@
     this={`h${level}`}
     {...restProps}
     class={cn(
-        "font-heading font-bold",
+        "font-heading font-medium",
         level == 1 && "text-4xl",
         level == 2 && "text-3xl",
         level == 3 && "text-2xl",

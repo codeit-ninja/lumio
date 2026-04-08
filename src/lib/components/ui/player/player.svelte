@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { invoke } from "@tauri-apps/api/core";
+    import { onMount } from "svelte";
     import type { Stream } from "$lib/app/stream.svelte";
     import { createPlayer } from "./context.svelte";
     import PlayerControls from "./player-controls.svelte";
@@ -22,6 +24,12 @@
     // Keep the media-player src attribute current when it changes after mount
     $effect(() => {
         ctx.playerEl?.setAttribute("src", ctx.src);
+    });
+
+    onMount(() => {
+        // Tag the WebView2 audio session with Lumio's identity so Windows
+        // shows it as "Lumio" in the Volume Mixer instead of "Microsoft Edge WebView2".
+        invoke("refresh_audio_session");
     });
 </script>
 

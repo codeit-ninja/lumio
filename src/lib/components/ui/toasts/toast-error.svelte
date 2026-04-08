@@ -12,17 +12,19 @@
 
 <div
     class={cn(
-        "rounded-xl corner-squircle bg-destructive-950 border border-destructive-500",
+        "rounded-xl corner-squircle border-destructive-300",
         "flex items-start shadow-lg",
     )}
 >
-    <div class="p-2">
-        <CrossRoundedIcon class="text-destructive-50 size-6 relative top-0.5" />
+    <div class="p-3">
+        <CrossRoundedIcon
+            class="text-destructive-800 size-6 relative top-0.5"
+        />
     </div>
-    <div class="p-2 text-sm grow">
-        <h5 class="font-heading font-base text-lg text-destructive-50">
+    <div class="p-3 text-sm grow">
+        <h5 class="font-heading font-base text-lg text-destructive-950">
             {title}
         </h5>
-        <p class="pt-2 pb-2 text-destructive-100">{@html message}</p>
+        <p class="pt-3 pb-2 text-black">{@html message}</p>
     </div>
 </div>

@@ -65,3 +65,10 @@ export const formatNumber = (num: number): string => {
     const formatter = Intl.NumberFormat("en", { notation: "compact" });
     return formatter.format(num);
 };
+
+export function preventDefault(handler: (e: Event) => void) {
+    return (e: Event) => {
+        e.preventDefault();
+        handler(e);
+    };
+}

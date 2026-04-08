@@ -5,6 +5,8 @@
 
     type Props = {
         ref?: HTMLElement;
+        label?: string;
+        error?: string;
     } & HTMLInputAttributes;
 
     let {
@@ -12,10 +14,19 @@
         type = "text",
         id = useId(),
         ref = $bindable<HTMLElement>(),
+        label,
+        error,
         ...restProps
     }: Props = $props();
 </script>
 
+{#if label}
+    <label
+        for={id}
+        class="uppercase text-gray-500 mb-2 font-medium inline-block"
+        >{label}</label
+    >
+{/if}
 <input
     bind:this={ref}
     bind:value
@@ -28,3 +39,8 @@
         restProps.class,
     )}
 />
+{#if error}
+    <p class="text-xs uppercase text-destructive-500 mt-2 font-medium">
+        {error}
+    </p>
+{/if}

@@ -1,3 +1,4 @@
+mod audio;
 mod ffmpeg;
 mod server;
 mod state;
@@ -63,6 +64,8 @@ pub fn run() {
                         .build(),
                 )?;
             }
+
+            audio::init();
 
             #[cfg(debug_assertions)]
             {
@@ -153,6 +156,7 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            audio::refresh_audio_session,
             torrent::add_torrent,
             torrent::remove_torrent,
             torrent::get_torrent,

@@ -1,3 +1,4 @@
+import type { Movie } from "$lib/resources/movies.svelte";
 import type {
     InferRelationalSelectModel,
     InferSelectModel,
@@ -7,6 +8,7 @@ import {
     relations,
     sqliteTable,
     text,
+    blob,
 } from "@type32/tauri-sqlite-orm";
 
 export const favoriteLists = sqliteTable("favorite_lists", {
@@ -20,6 +22,7 @@ export const favoriteListItems = sqliteTable("favorite_list_items", {
         .notNull()
         .references(() => favoriteLists._.columns.id, { onDelete: "cascade" }),
     imdbId: text("imdb_id").notNull(),
+    movie: blob("movie", { mode: "json" }).notNull().$type<Movie>(),
 });
 
 export const favoriteListsWithItems = relations(favoriteLists, ({ many }) => ({

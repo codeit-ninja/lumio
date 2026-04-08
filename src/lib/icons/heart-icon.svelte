@@ -1,7 +1,21 @@
 <script lang="ts">
     import type { HTMLAttributes } from "svelte/elements";
 
-    const { ...restProps }: HTMLAttributes<SVGElement> = $props();
+    interface Props extends HTMLAttributes<SVGElement> {
+        animate?: boolean;
+    }
+
+    const { animate = false, ...restProps }: Props = $props();
+
+    let fillAnim: SVGAnimateElement;
+    let strokeAnim: SVGAnimateElement;
+
+    $effect(() => {
+        if (animate) {
+            fillAnim?.beginElement();
+            strokeAnim?.beginElement();
+        }
+    });
 </script>
 
 <svg
@@ -12,6 +26,31 @@
     {...restProps}
     ><path
         fill="currentColor"
-        d="M8.106 18.247C5.298 16.083 2 13.542 2 9.137C2 4.274 7.5.825 12 5.501l2 1.998a.75.75 0 0 0 1.06-1.06l-1.93-1.933C17.369 1.403 22 4.675 22 9.137c0 4.405-3.298 6.946-6.106 9.11q-.44.337-.856.664C14 19.729 13 20.5 12 20.5s-2-.77-3.038-1.59q-.417-.326-.856-.663"
-    /></svg
+        fill-opacity="0"
+        d="M12 8c0 0 0 0 0.76 -1c0.88 -1.16 2.18 -2 3.74 -2c2.49 0 4.5 2.01 4.5 4.5c0 0.93 -0.28 1.79 -0.76 2.5c-0.81 1.21 -8.24 9 -8.24 9c0 0 -7.43 -7.79 -8.24 -9c-0.48 -0.71 -0.76 -1.57 -0.76 -2.5c0 -2.49 2.01 -4.5 4.5 -4.5c1.56 0 2.87 0.84 3.74 2c0.76 1 0.76 1 0.76 1Z"
+        ><animate
+            bind:this={fillAnim}
+            fill="freeze"
+            attributeName="fill-opacity"
+            begin="indefinite"
+            dur="0.2s"
+            to="1"
+        /></path
+    ><path
+        fill="none"
+        stroke="currentColor"
+        stroke-dasharray="30"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M12 8c0 0 0 0 -0.76 -1c-0.88 -1.16 -2.18 -2 -3.74 -2c-2.49 0 -4.5 2.01 -4.5 4.5c0 0.93 0.28 1.79 0.76 2.5c0.81 1.21 8.24 9 8.24 9M12 8c0 0 0 0 0.76 -1c0.88 -1.16 2.18 -2 3.74 -2c2.49 0 4.5 2.01 4.5 4.5c0 0.93 -0.28 1.79 -0.76 2.5c-0.81 1.21 -8.24 9 -8.24 9"
+        ><animate
+            bind:this={strokeAnim}
+            fill="freeze"
+            attributeName="stroke-dashoffset"
+            begin="indefinite"
+            dur="0.2s"
+            values="30;0"
+        /></path
+    ></svg
 >

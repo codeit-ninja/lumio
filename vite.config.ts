@@ -39,6 +39,12 @@ function bitsUiCssPlugin(): Plugin {
 export default defineConfig({
     plugins: [bitsUiCssPlugin(), vidstack(), sveltekit(), tailwindcss()],
     optimizeDeps: {
-        exclude: ["runed", "phosphor-svelte", "bits-ui", "svelte-sonner"],
+        exclude: [
+            "runed",
+            "phosphor-svelte",
+            "bits-ui",
+            "svelte-sonner",
+            "@thisux/sveltednd",
+        ],
     },
 });

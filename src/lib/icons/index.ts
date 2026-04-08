@@ -7,9 +7,12 @@ import CloseIcon from "./close-icon.svelte";
 import CrossRoundedIcon from "./cross-rounded-icon.svelte";
 import HeartIcon from "./heart-icon.svelte";
 import HomeIcon from "./home-icon.svelte";
+import PencilIcon from "./pencil-icon.svelte";
 import PlayIcon from "./play-icon.svelte";
+import PlusRoundedIcon from "./plus-rounded-icon.svelte";
 import SpinnerIcon from "./spinner-icon.svelte";
 import StarIcon from "./star-icon.svelte";
+import TrashIcon from "./trash-icon.svelte";
 
 export {
     CaretRightIcon,
@@ -24,4 +27,7 @@ export {
     AudioIcon,
     CheckRoundedIcon,
     CrossRoundedIcon,
+    PlusRoundedIcon,
+    TrashIcon,
+    PencilIcon,
 };

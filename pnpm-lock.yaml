@@ -26,6 +26,9 @@ importers:
       '@tauri-apps/plugin-sql':
         specifier: ~2.4.0
         version: 2.4.0
+      '@thisux/sveltednd':
+        specifier: ^0.4.0
+        version: 0.4.0(svelte@5.55.1)
       '@type32/tauri-sqlite-orm':
         specifier: 0.4.1-5
         version: 0.4.1-5
@@ -53,6 +56,9 @@ importers:
       lodash-es:
         specifier: ^4.18.1
         version: 4.18.1
+      muuri:
+        specifier: ^0.9.5
+        version: 0.9.5
       neverthrow:
         specifier: ^8.2.0
         version: 8.2.0
@@ -912,6 +918,11 @@ packages:
       vitest:
         optional: true
 
+  '@thisux/sveltednd@0.4.0':
+    resolution: {integrity: sha512-hUKPxkMOhGHYsAdXk0NH43YV32MELjpoDJyG3RmRS96Rl+Zqbo4g4hitKM1oWbtbIuzJ28RysAeFeRhVAfCFQg==}
+    peerDependencies:
+      svelte: ^5.0.0
+
   '@tybys/wasm-util@0.10.1':
     resolution: {integrity: sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg==}
 
@@ -1713,6 +1724,9 @@ packages:
 
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
+
+  muuri@0.9.5:
+    resolution: {integrity: sha512-nJL9/Pd5IaIXGAVunBs/LLQ+v6tPkvlqCYrlauWESgkVFr+F+CRf8HnayRh4AqiQ1S/PIEN39fhJSe4L5rLlxg==}
 
   nanoid@3.3.11:
     resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
@@ -2816,6 +2830,10 @@ snapshots:
       vite: 7.3.1(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)
       vitest: 4.1.2(@types/node@25.5.2)(jsdom@28.1.0)(vite@7.3.1(@types/node@25.5.2)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1))
 
+  '@thisux/sveltednd@0.4.0(svelte@5.55.1)':
+    dependencies:
+      svelte: 5.55.1
+
   '@tybys/wasm-util@0.10.1':
     dependencies:
       tslib: 2.8.1
@@ -3600,6 +3618,8 @@ snapshots:
   mrmime@2.0.1: {}
 
   ms@2.1.3: {}
+
+  muuri@0.9.5: {}
 
   nanoid@3.3.11: {}
 

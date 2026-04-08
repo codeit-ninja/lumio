@@ -5,7 +5,7 @@
     import { Toaster } from "svelte-sonner";
     import { dev } from "$app/environment";
     import { createApp } from "$lib/app";
-    import { createDialog, Search } from "$lib/components/app";
+    import { createDialog, Dialog, Search } from "$lib/components/app";
     import NavbarMain from "$lib/components/app/navbar/navbar-main.svelte";
     import { Trailer } from "$lib/components/app/trailer";
     import { Logo } from "$lib/components/logo";
@@ -69,6 +69,7 @@
 
 <Trailer />
 <Toaster richColors theme="dark" />
+<Dialog />
 
 {#if app.stream && app.stream.canPlay}
     <div

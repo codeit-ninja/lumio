@@ -4,9 +4,15 @@
     import { H } from "../ui/h";
     import { useMovie } from "./context.svelte";
 
-    type Props = {} & Partial<ComponentProps<typeof H>>;
+    type Props = {
+        hideOriginalTitle?: boolean;
+    } & Partial<ComponentProps<typeof H>>;
 
-    const { level = 1, ...restProps }: Props = $props();
+    const {
+        level = 1,
+        hideOriginalTitle = false,
+        ...restProps
+    }: Props = $props();
     const movie = useMovie();
 </script>
 
@@ -24,7 +30,7 @@
             level == 4 && "text-lg",
         )}
     >
-        {#if movie.originalTitle !== movie.primaryTitle}
+        {#if !hideOriginalTitle && movie.originalTitle !== movie.primaryTitle}
             {movie.originalTitle}
         {/if}
     </span>

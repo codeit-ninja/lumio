@@ -13,6 +13,10 @@ export const ssr = false;
 export const trailingSlash = "always";
 
 await orm.migrate();
+
+// await orm.dropTable("favorite_lists");
+// await orm.dropTable("favorite_list_items");
+
 const favoriteList = await orm
     .select(favoriteLists)
     .where(eq(favoriteLists._.columns.name, "default"))

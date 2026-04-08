@@ -11,6 +11,7 @@ export type DialogOptions<
     description?: string;
     component: C;
     size?: "sm" | "md" | "lg" | "full";
+    position?: "left" | "center" | "right";
     props?: InferProps<C>;
 };
 
@@ -27,12 +28,15 @@ class Dialog {
 
     size = $state<"sm" | "md" | "lg" | "full">("md");
 
+    position = $state<"left" | "center" | "right">("center");
+
     create<C extends Component<any, any, any>>(options: DialogOptions<C>) {
         this.title = options.title;
         this.description = options.description;
         this.component = options.component;
         this.props = (options.props ?? null) as Record<string, any> | null;
         this.size = options.size ?? "md";
+        this.position = options.position ?? "center";
     }
 
     openDialog() {
