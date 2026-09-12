@@ -38,6 +38,12 @@ function bitsUiCssPlugin(): Plugin {
 
 export default defineConfig({
     plugins: [bitsUiCssPlugin(), vidstack(), sveltekit(), tailwindcss()],
+    server: {
+        // Keep in sync with src-tauri/tauri.conf.json build.devUrl
+        // (5173 was ghost-locked on this machine — EADDRINUSE with no listener)
+        port: 1420,
+        strictPort: true,
+    },
     optimizeDeps: {
         exclude: [
             "runed",

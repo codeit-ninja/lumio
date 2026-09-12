@@ -1,0 +1,112 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "id": "66bf4a55-b885-455b-80ec-ee36934c9524",
+  "prevIds": [
+    "b783e6a4-198d-497a-9643-893fab08e93b"
+  ],
+  "ddl": [
+    {
+      "name": "favorites_list_items",
+      "entityType": "tables"
+    },
+    {
+      "name": "favorites_lists",
+      "entityType": "tables"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "id",
+      "entityType": "columns",
+      "table": "favorites_list_items"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "list_id",
+      "entityType": "columns",
+      "table": "favorites_list_items"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "imdb_id",
+      "entityType": "columns",
+      "table": "favorites_list_items"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "details",
+      "entityType": "columns",
+      "table": "favorites_list_items"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "id",
+      "entityType": "columns",
+      "table": "favorites_lists"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "name",
+      "entityType": "columns",
+      "table": "favorites_lists"
+    },
+    {
+      "columns": [
+        "list_id"
+      ],
+      "tableTo": "favorites_lists",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "nameExplicit": false,
+      "name": "fk_favorites_list_items_list_id_favorites_lists_id_fk",
+      "entityType": "fks",
+      "table": "favorites_list_items"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "favorites_list_items_pk",
+      "table": "favorites_list_items",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "favorites_lists_pk",
+      "table": "favorites_lists",
+      "entityType": "pks"
+    }
+  ],
+  "renames": []
+}

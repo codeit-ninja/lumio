@@ -28,7 +28,7 @@
     {#if previewItems.length}
         {#each previewItems as item, index (item.id)}
             <CardMovie
-                movie={item.movie}
+                movie={item.details}
                 animated
                 animatedDelay={index * 150}
                 class="animate-duration-fast movie-card"
@@ -41,7 +41,7 @@
         {#if list.isExpanded}
             {#each items as item, index (item.id)}
                 <CardMovie
-                    movie={item.movie}
+                    movie={item.details}
                     animated
                     animatedDelay={index * 150}
                     class="animate-duration-fast movie-card"

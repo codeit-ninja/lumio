@@ -4,8 +4,6 @@
 
     const movies = useMovies();
     const movie = $derived(movies.trending.current?.at(0));
-
-    $inspect(movie);
 </script>
 
 {#if movie}

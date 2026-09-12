@@ -1,10 +1,10 @@
 <script lang="ts">
-    import { eq } from "@type32/tauri-sqlite-orm";
+    import { eq } from "drizzle-orm";
     import { isEmpty } from "lodash-es";
     import { Button } from "../ui/button";
     import { Input } from "../ui/input";
-    import { orm } from "$lib/database";
-    import { favoriteLists } from "$lib/database/favorites";
+    import { db } from "$lib/database";
+    import { favoritesLists } from "$lib/database/schema";
     import { preventDefault } from "$lib/utils";
 
     type Props = {
@@ -26,10 +26,11 @@
             return;
         }
 
-        const exists = await orm
-            .select(favoriteLists)
-            .where(eq(favoriteLists._.columns.name, name))
-            .exists();
+        const [exists] = await db
+            .select()
+            .from(favoritesLists)
+            .where(eq(favoritesLists.name, name))
+            .limit(1);
 
         if (exists) {
             error = "List name already exists";
@@ -41,6 +42,6 @@
         }
     })}
 >
-    <Input label="List Name" bind:value={name} {error} />
+    <Input label="List Name" autocomplete="off" bind:value={name} {error} />
     <Button variant="ghost" class="mt-4 ms-auto" type="submit">Create</Button>
 </form>

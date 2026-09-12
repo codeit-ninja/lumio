@@ -5,7 +5,7 @@
     import * as Movie from "$lib/components/movie";
     import { ButtonBack } from "$lib/components/ui/button";
     import { Skeleton } from "$lib/components/ui/skeleton";
-    import { getMovieDetails } from "$lib/movies";
+    import { getMovieDetails } from "$lib/titles/index.js";
 
     let { params } = $props();
 

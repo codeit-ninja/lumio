@@ -11,7 +11,7 @@
     import { Logo } from "$lib/components/logo";
     import { Select } from "$lib/components/ui/input";
     import { Player } from "$lib/components/ui/player";
-    import { createMovies } from "$lib/resources";
+    import { createMovies, createSeries } from "$lib/resources";
     import { cn } from "$lib/utils";
 
     import "vidstack/bundle";
@@ -19,8 +19,9 @@
     let { children } = $props();
     let app = createApp();
 
-    createMovies();
     createDialog();
+    createMovies();
+    createSeries();
 
     onMount(async () => {
         if (dev) {
@@ -49,11 +50,11 @@
         >
             <div class="overflow-clip">
                 <Select
-                    bind:value={app.category}
+                    bind:value={app.type}
                     type="single"
                     items={[
-                        { label: "Movies", value: "movies" },
-                        { label: "TV Shows", value: "tv-shows" },
+                        { label: "Movies", value: "MOVIE" },
+                        { label: "TV Series", value: "TV_SERIES" },
                     ]}
                 />
             </div>

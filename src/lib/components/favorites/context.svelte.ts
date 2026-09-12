@@ -1,4 +1,4 @@
-import type { FavoriteListWithItems } from "$lib/database/favorites";
+import type { FavoriteListWithItems } from "$lib/database/schema";
 import { createContext } from "svelte";
 
 export class FavoriteListContext {

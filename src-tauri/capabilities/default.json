@@ -19,7 +19,7 @@
           "url": "http://localhost:*"
         },
         {
-          "url": "https://api.imdbapi.dev/*"
+          "url": "https://api.tiffara.com/*"
         },
         {
           "url": "https://*.omdbapi.com/*"
@@ -40,7 +40,7 @@
     },
     "os:default",
     "device-info:default",
-    "sql:default",
-    "sql:allow-execute"
+    "libsql:allow-load",
+    "libsql:default"
   ]
 }

@@ -13,7 +13,7 @@ import { createMagnetURI } from "$lib/utils";
 import { webtorrent } from "$lib/webtorrent";
 
 export class AppContext {
-    category = $state<"movies" | "tv-shows">("movies");
+    type = $state<"MOVIE" | "TV_SERIES">("TV_SERIES");
 
     stream = $state<Stream>();
 

@@ -84,7 +84,6 @@ export class Wyzie {
      * @returns A promise that resolves to an array of matching subtitles.
      */
     async search(params: WyzieSearchParams): Promise<WyzieSubtitle[]> {
-        console.log("Searching Wyzie with params:", params);
         const query = new URLSearchParams();
         query.set("id", String(params.id));
         query.set("key", this.apiKey);

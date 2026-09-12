@@ -37,7 +37,6 @@
                 });
         },
     );
-    $inspect(results.current);
 </script>
 
 <Input

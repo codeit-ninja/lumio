@@ -1,5 +1,6 @@
 import type { IMDbMovieDetails } from "$lib/imdb";
-import type { Genre, Movie as TMDbMovie } from "tmdb-ts/dist/types";
+import type { Movie as TMDbMovie } from "tmdb-ts/dist/types";
+import pLimit from "p-limit";
 import { PersistedState, resource } from "runed";
 import { createContext } from "svelte";
 import { IMDb } from "$lib/imdb";
@@ -13,7 +14,7 @@ export class Movies {
         () => null,
         async () => {
             const persisted = new PersistedState<Movie[] | undefined>(
-                "trending-movies",
+                `trending-movies`,
                 undefined,
             );
 
@@ -25,18 +26,79 @@ export class Movies {
                 sortBy: "SORT_BY_POPULARITY",
                 types: ["MOVIE"],
                 countryCodes: ["NL"],
+                minVoteCount: 15000,
             });
 
-            const movies = response.titles?.map(async (title) => {
+            const limit = pLimit(5);
+            const titles = (response.titles ?? []).map((title) =>
+                limit(async () => {
+                    if (!title.id) {
+                        return null;
+                    }
+
+                    const { movie_results } = await TMDb.find.byExternalId(
+                        title.id,
+                        {
+                            external_source: "imdb_id",
+                        },
+                    );
+
+                    if (!movie_results?.[0]) {
+                        return null;
+                    }
+
+                    return {
+                        ...title,
+                        ...movie_results?.[0],
+                        id: title.id,
+                        tmdbId: movie_results[0]?.id,
+                    };
+                }),
+            );
+
+            const result = (await Promise.all(titles ?? [])).filter(
+                (m) => m !== null,
+            );
+
+            persisted.current = result;
+            return persisted.current;
+        },
+    );
+
+    genres = resource(
+        () => null,
+        async () => {
+            const { categories } =
+                await IMDb.interests.imDbApiServiceListInterestCategories();
+            return categories;
+        },
+    );
+
+    async getMoviesByInterest(interestId: string) {
+        const persisted = new PersistedState<Movie[] | undefined>(
+            `trending-movies-${interestId}`,
+            undefined,
+        );
+
+        if (persisted.current) {
+            return persisted.current;
+        }
+
+        const { titles } = await IMDb.titles.imDbApiServiceListTitles({
+            interestIds: [interestId],
+            sortBy: "SORT_BY_POPULARITY",
+        });
+
+        const limit = pLimit(5);
+        const movies = (titles ?? []).map((title) =>
+            limit(async () => {
                 if (!title.id) {
                     return null;
                 }
 
                 const { movie_results } = await TMDb.find.byExternalId(
                     title.id,
-                    {
-                        external_source: "imdb_id",
-                    },
+                    { external_source: "imdb_id" },
                 );
 
                 if (!movie_results?.[0]) {
@@ -49,21 +111,14 @@ export class Movies {
                     id: title.id,
                     tmdbId: movie_results[0].id,
                 };
-            });
+            }),
+        );
 
-            const result = (await Promise.all(movies ?? [])).filter(
-                (m) => m !== null,
-            );
-            persisted.current = result;
+        const result = (await Promise.all(movies)).filter((m) => m !== null);
 
-            return persisted.current;
-        },
-    );
-
-    genres = resource(
-        () => null,
-        () => TMDb.genres.movies().then<Genre[]>((response) => response.genres),
-    );
+        persisted.current = result;
+        return persisted.current;
+    }
 }
 
 const [get, set] = createContext<Movies>();

@@ -1,12 +1,12 @@
 <script lang="ts">
-    import { eq } from "@type32/tauri-sqlite-orm";
+    import { eq } from "drizzle-orm";
     import { toast } from "svelte-sonner";
     import { cn } from "tailwind-variants";
     import { Button } from "../ui/button";
     import { ToastSuccess, ToastError } from "../ui/toasts";
     import { useMovie } from "./context.svelte";
-    import { orm } from "$lib/database";
-    import { favoriteListItems } from "$lib/database/favorites";
+    import { db } from "$lib/database";
+    import { favoritesListItems } from "$lib/database/schema";
     import { HeartIcon } from "$lib/icons";
 
     let isLoading = $state(false);
@@ -15,11 +15,12 @@
     let didAddToFavorites = $state(false);
 
     $effect(() => {
-        orm.select(favoriteListItems)
-            .where(eq(favoriteListItems._.columns.imdbId, movie.id))
-            .exists()
+        db.select()
+            .from(favoritesListItems)
+            .where(eq(favoritesListItems.imdbId, movie.id))
+            .execute()
             .then((val) => {
-                isFavorite = val;
+                isFavorite = val.length > 0;
             });
     });
 
@@ -27,9 +28,9 @@
         isLoading = true;
 
         if (isFavorite) {
-            return orm
-                .delete(favoriteListItems)
-                .where(eq(favoriteListItems._.columns.imdbId, movie.id))
+            return db
+                .delete(favoritesListItems)
+                .where(eq(favoritesListItems._.columns.imdbId, movie.id))
                 .execute()
                 .then(() => {
                     toast.custom(ToastSuccess, {
@@ -54,12 +55,12 @@
                 });
         }
 
-        return orm
-            .insert(favoriteListItems)
+        return db
+            .insert(favoritesListItems)
             .values({
-                favoriteListId: 1,
+                listId: 1,
                 imdbId: movie.id,
-                movie: movie,
+                details: movie,
             })
             .execute()
             .then(() => {

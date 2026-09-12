@@ -279,9 +279,9 @@ export interface ImdbapiInterest {
 /** InterestCategory represents a category of interests in the IMDB API. */
 export interface ImdbapiInterestCategory {
     /** Unique identifier for the interest category. */
-    category?: string;
+    category: string;
     /** A list of interests that belong to this category. */
-    interests?: ImdbapiInterest[];
+    interests: ImdbapiInterest[];
 }
 
 /**
@@ -298,7 +298,7 @@ export interface ImdbapiLanguage {
 /** Response message for listing interest categories. */
 export interface ImdbapiListListInterestCategoriesResponse {
     /** List of available interest categories. */
-    categories?: ImdbapiInterestCategory[];
+    categories: ImdbapiInterestCategory[];
 }
 
 /** Response message for listing filmography associated with a name. */
@@ -863,7 +863,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-    public baseUrl: string = "https://api.imdbapi.dev";
+    public baseUrl: string = "https://api.tiffara.com";
     private securityData: SecurityDataType | null = null;
     private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
     private abortControllers = new Map<CancelToken, AbortController>();
@@ -1077,7 +1077,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title IMDbAPI
  * @version 2.7.12
- * @baseUrl https://api.imdbapi.dev
+ * @baseUrl https://api.tiffara.com
  * @contact Telegram Group (https://t.me/imdbapi)
  *
  * IMDb API for accessing movie and TV show data

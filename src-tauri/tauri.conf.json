@@ -5,7 +5,7 @@
   "identifier": "com.lumio.app",
   "build": {
     "frontendDist": "../build",
-    "devUrl": "http://localhost:5173",
+    "devUrl": "http://localhost:1420",
     "beforeDevCommand": "pnpm vite dev",
     "beforeBuildCommand": "pnpm vite build"
   },
@@ -24,7 +24,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; connect-src 'self' http://localhost:* https://api.imdbapi.dev https://*.omdbapi.com https://api.themoviedb.org https://image.tmdb.org https://sub.wyzie.io https://apibay.org ipc: http://ipc.localhost; media-src 'self' http://localhost:* blob:; img-src 'self' https://image.tmdb.org https://m.media-amazon.com data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; frame-src https://www.youtube-nocookie.com"
+      "csp": "default-src 'self'; connect-src 'self' http://localhost:* https://api.tiffara.com https://*.omdbapi.com https://api.themoviedb.org https://image.tmdb.org https://sub.wyzie.io https://apibay.org ipc: http://ipc.localhost; media-src 'self' http://localhost:* blob:; img-src 'self' https://image.tmdb.org https://m.media-amazon.com data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; frame-src https://www.youtube-nocookie.com"
     }
   },
   "bundle": {

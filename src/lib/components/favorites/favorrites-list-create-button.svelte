@@ -5,8 +5,8 @@
     import { ToastSuccess } from "../ui/toasts";
     import { CreateForm } from ".";
     import { invalidate } from "$app/navigation";
-    import { orm } from "$lib/database";
-    import { favoriteLists } from "$lib/database/favorites";
+    import { db } from "$lib/database";
+    import { favoritesLists } from "$lib/database/schema";
     import { PlusRoundedIcon } from "$lib/icons";
 
     const dialog = useDialog();
@@ -25,7 +25,7 @@
                 "Create a new list to organize your favorite movies and TV shows.",
             props: {
                 onsubmit(name) {
-                    orm.insert(favoriteLists)
+                    db.insert(favoritesLists)
                         .values({ name })
                         .execute()
                         .then(() => {

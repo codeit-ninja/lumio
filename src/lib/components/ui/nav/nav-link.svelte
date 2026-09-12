@@ -15,8 +15,6 @@
                 restProps.href !== "/") ||
             restProps.href + "/" === page.url.pathname,
     );
-
-    console.log(restProps.href);
 </script>
 
 <a

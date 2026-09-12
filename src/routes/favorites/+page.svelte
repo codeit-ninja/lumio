@@ -1,8 +1,8 @@
 <script lang="ts">
-    import type { FavoriteListItem } from "$lib/database/favorites";
+    import type { FavoriteListItem } from "$lib/database/schema";
     import type { DragDropState } from "@thisux/sveltednd";
     import { droppable, dndState } from "@thisux/sveltednd";
-    import { eq } from "@type32/tauri-sqlite-orm";
+    import { eq } from "drizzle-orm";
     import { fromAction } from "svelte/attachments";
     import { toast } from "svelte-sonner";
     import { cn } from "tailwind-variants";
@@ -10,8 +10,8 @@
     import * as Favorites from "$lib/components/favorites";
     import { H } from "$lib/components/ui/h";
     import { ToastError, ToastSuccess } from "$lib/components/ui/toasts";
-    import { favoriteListItems } from "$lib/database/favorites";
-    import { orm } from "$lib/database/index.js";
+    import { db } from "$lib/database/index.js";
+    import { favoritesListItems } from "$lib/database/schema";
 
     let { data } = $props();
 
@@ -23,11 +23,11 @@
             return;
         }
 
-        orm.update(favoriteListItems)
-            .where(eq(favoriteListItems._.columns.id, draggedItem.id))
+        db.update(favoritesListItems)
             .set({
-                favoriteListId: parseInt(targetContainer),
+                listId: parseInt(targetContainer),
             })
+            .where(eq(favoritesListItems.id, draggedItem.id))
             .execute()
             .then(() => {
                 toast.custom(ToastSuccess, {

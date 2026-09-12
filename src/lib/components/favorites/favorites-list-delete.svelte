@@ -1,13 +1,13 @@
 <script lang="ts">
     import type { HTMLButtonAttributes } from "svelte/elements";
-    import { eq } from "@type32/tauri-sqlite-orm";
+    import { eq } from "drizzle-orm";
     import { toast } from "svelte-sonner";
     import { cn } from "tailwind-variants";
     import { ToastError, ToastSuccess } from "../ui/toasts";
     import { useFavoriteList } from "./context.svelte";
     import { invalidateAll } from "$app/navigation";
-    import { orm } from "$lib/database";
-    import { favoriteLists } from "$lib/database/favorites";
+    import { db } from "$lib/database";
+    import { favoritesLists } from "$lib/database/schema";
     import { TrashIcon } from "$lib/icons";
 
     type Props = {} & HTMLButtonAttributes;
@@ -24,8 +24,8 @@
             restProps.class,
         )}
         onclick={() => {
-            orm.delete(favoriteLists)
-                .where(eq(favoriteLists._.columns.id, list.current.id))
+            db.delete(favoritesLists)
+                .where(eq(favoritesLists.id, list.current.id))
                 .execute()
                 .then(() => {
                     toast.custom(ToastSuccess, {

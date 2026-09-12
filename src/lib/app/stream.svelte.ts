@@ -100,7 +100,7 @@ export class Stream {
                                 this.movie.id ||
                                 this.movie.tmdbId.toString() ||
                                 `${this.movie.title} (${this.movie.startYear})`,
-                            source: ["subf2m"],
+                            source: ["subf2m", "opensubtitles"],
                         })
                         .then((results) => {
                             console.log(results);

@@ -1,0 +1,4 @@
+# Files/dirs that should NOT trigger a Tauri backend restart on change
+
+target/
+lumio.db
